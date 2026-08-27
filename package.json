@@ -4,11 +4,11 @@
   "private": true,
   "description": "Site de l'association Deux saisons de planche — vitrine, espace membre, back-office.",
   "engines": {
-    "node": ">=18.18.0"
+    "node": "22.x"
   },
   "scripts": {
     "dev": "next dev",
-    "build": "prisma generate && prisma migrate deploy && next build",
+    "build": "prisma generate && next build",
     "start": "next start",
     "lint": "next lint",
     "db:push": "prisma db push",

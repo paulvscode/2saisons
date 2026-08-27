@@ -104,6 +104,7 @@ Guide complet Vercel + Neon + Vercel Blob : **[DEPLOYMENT.md](DEPLOYMENT.md)**.
 
 ## Production — points d'attention
 
+- **Migrations** : le build Vercel ne fait que `prisma generate && next build`. Appliquer les migrations à part : `DATABASE_URL=<neon> npx prisma migrate deploy`.
 - **Uploads** : `UPLOADS_DRIVER=blob` (Vercel Blob) en prod — le driver `local` ne marche que sur ta machine. Voir `src/lib/uploads.ts`.
 - **Reçu** : page HTML imprimable. Générer un vrai PDF archivé (`@react-pdf/renderer`) si besoin.
 - **Renouvellements** : un cron doit passer les adhésions `active` échues en `expired` (l'affichage est déjà géré à la lecture via `getMembershipView`).

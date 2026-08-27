@@ -15,12 +15,14 @@ Vercel est le meilleur choix pour ce projet (Next.js). Il faut 3 services :
 ## 1. Préparer le dépôt
 
 ```bash
-# créer la première migration Prisma (obligatoire : le build prod fait `prisma migrate deploy`)
-npx prisma migrate dev --name init      # génère prisma/migrations/**
+npx prisma migrate dev --name init      # génère prisma/migrations/** (à committer)
 npx tsc --noEmit                         # vérifier qu'il n'y a pas d'erreur de type
 git add -A && git commit -m "Prépa déploiement"
-git push          # sur GitHub / GitLab / Bitbucket
+git push
 ```
+
+> Le build Vercel ne touche **pas** à la base (`build = prisma generate && next build`).
+> Les migrations sont appliquées manuellement (étape 2) — plus simple et plus sûr.
 
 ## 2. Base de données (Neon)
 
@@ -28,6 +30,12 @@ git push          # sur GitHub / GitLab / Bitbucket
 2. Récupérer **deux** chaînes de connexion :
    - **Pooled** (`...-pooler...`, `?sslmode=require`) → `DATABASE_URL`
    - **Direct** (host sans `-pooler`, port 5432) → `DIRECT_URL`
+3. Appliquer le schéma sur Neon depuis ta machine (une seule fois, puis à chaque nouvelle migration) :
+
+   ```bash
+   DATABASE_URL="<url directe Neon>" DIRECT_URL="<url directe Neon>" \
+     npx prisma migrate deploy
+   ```
 
 ## 3. Importer le projet dans Vercel
 
