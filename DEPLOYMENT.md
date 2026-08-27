@@ -1,101 +1,105 @@
-# Déploiement — Vercel
+# Déploiement — Vercel + Neon + Vercel Blob
 
-Vercel est le meilleur choix pour ce projet (Next.js). Il faut 3 services :
+| Besoin | Service |
+| --- | --- |
+| Hébergement Next.js | **Vercel** |
+| PostgreSQL | **Neon** (via l'intégration Vercel → Storage) |
+| Stockage des justificatifs | **Vercel Blob** |
 
-| Besoin | Service recommandé | Alternatives |
-| --- | --- | --- |
-| Hébergement Next.js | **Vercel** | Netlify, Render, VPS + Node |
-| PostgreSQL | **Neon** (ou Vercel Postgres, basé sur Neon) | Supabase, Railway, RDS |
-| Stockage des justificatifs | **Vercel Blob** | S3, Supabase Storage, R2 |
-
-> ⚠️ Le disque de Vercel est **éphémère** : `UPLOADS_DRIVER=local` ne fonctionne pas en production, d'où Vercel Blob.
+> ⚠️ Le disque de Vercel est **éphémère** : `UPLOADS_DRIVER=local` ne fonctionne pas en prod, d'où Vercel Blob.
+> Le build Vercel ne touche pas à la base (`build = prisma generate && next build`). Les migrations
+> se lancent à la main depuis ta machine (étape 4).
 
 ---
 
-## 1. Préparer le dépôt
+## 1. Pousser le code
 
 ```bash
-npx prisma migrate dev --name init      # génère prisma/migrations/** (à committer)
-npx tsc --noEmit                         # vérifier qu'il n'y a pas d'erreur de type
-git add -A && git commit -m "Prépa déploiement"
+cd /Users/paul/Desktop/dev/2saisons
+npm run build            # reproduit le build Vercel en local — doit passer
+git add .
+git commit -m "Déploiement"
 git push
 ```
 
-> Le build Vercel ne touche **pas** à la base (`build = prisma generate && next build`).
-> Les migrations sont appliquées manuellement (étape 2) — plus simple et plus sûr.
+Sur [vercel.com/new](https://vercel.com/new), importer le repo `paulvscode/2saisons` (framework détecté : Next.js). Le premier déploiement va **échouer** faute de base de données — c'est normal, on corrige aux étapes suivantes.
 
-## 2. Base de données (Neon)
+## 2. Créer la base — Vercel → Storage
 
-1. Créer un projet sur [neon.tech](https://neon.tech) → base `deux_saisons`.
-2. Récupérer **deux** chaînes de connexion :
-   - **Pooled** (`...-pooler...`, `?sslmode=require`) → `DATABASE_URL`
-   - **Direct** (host sans `-pooler`, port 5432) → `DIRECT_URL`
-3. Appliquer le schéma sur Neon depuis ta machine (une seule fois, puis à chaque nouvelle migration) :
+1. Projet Vercel → onglet **Storage** → **Create Database** → **Neon** (Serverless Postgres).
+2. Région : **Europe (Frankfurt)** de préférence. Valider.
+3. Vercel connecte la base au projet et ajoute automatiquement les variables d'environnement, dont :
+   - `DATABASE_URL` → chaîne **poolée** (`...-pooler...`) — c'est celle que l'app utilise.
+   - `DATABASE_URL_UNPOOLED` (ou `POSTGRES_URL_NON_POOLING`) → chaîne **directe** — utile pour les migrations.
 
-   ```bash
-   DATABASE_URL="<url directe Neon>" DIRECT_URL="<url directe Neon>" \
-     npx prisma migrate deploy
-   ```
+Rien d'autre à faire côté `DATABASE_URL` : elle est déjà là.
 
-## 3. Importer le projet dans Vercel
+## 3. Créer le store de fichiers — Vercel → Storage
 
-1. [vercel.com/new](https://vercel.com/new) → importer le repo. Framework détecté : **Next.js**. Ne rien changer aux commandes (le `build` du `package.json` fait `prisma generate && prisma migrate deploy && next build`).
-2. **Storage → Create → Blob** : créer un store et le lier au projet. Vercel injecte automatiquement `BLOB_READ_WRITE_TOKEN`.
-3. **Settings → Environment Variables** (Production + Preview) :
+**Storage → Create Database → Blob** → créer le store, le lier au projet.
+Vercel injecte automatiquement `BLOB_READ_WRITE_TOKEN`.
 
-   | Variable | Valeur |
-   | --- | --- |
-   | `DATABASE_URL` | URL **poolée** Neon |
-   | `DIRECT_URL` | URL **directe** Neon |
-   | `AUTH_SECRET` | `openssl rand -base64 32` |
-   | `APP_URL` | `https://votre-domaine.fr` (ou l'URL `*.vercel.app`) |
-   | `UPLOADS_DRIVER` | `blob` |
-   | `MEMBERSHIP_PRICE_CENTS` | `2000` |
-   | `MEMBERSHIP_DURATION_MONTHS` | `12` |
-   | `STRIPE_SECRET_KEY` | (optionnel — vide = mode démo) |
-   | `STRIPE_WEBHOOK_SECRET` | (voir §5) |
+## 4. Appliquer le schéma sur Neon (depuis ta machine)
 
-4. **Deploy**. Le premier build applique la migration `init` sur la base Neon.
-
-## 4. Créer le compte admin en production
-
-Le seed complet n'est pas souhaitable en prod. Deux options :
+Récupère la chaîne **directe** (`DATABASE_URL_UNPOOLED`) dans Vercel → Settings → Environment Variables (bouton "reveal"). Puis :
 
 ```bash
-# Option A — depuis ta machine, pointée sur la base de prod :
-DATABASE_URL="<url directe Neon>" npx tsx prisma/seed.ts     # crée admin@ + member@ + données démo
+# créer le schéma + les tables
+DATABASE_URL="<chaîne DIRECTE Neon>" npx prisma migrate deploy
 
-# Option B — ne créer que l'admin (Prisma Studio) :
-DATABASE_URL="<url directe Neon>" npx prisma studio
-# → table users → New record : email, role=admin, passwordHash = hash bcrypt d'un mot de passe
+# créer le compte admin (+ données de démo)
+DATABASE_URL="<chaîne DIRECTE Neon>" npx tsx prisma/seed.ts
 ```
 
-Génération d'un hash bcrypt ponctuel :
-`node -e "console.log(require('bcryptjs').hashSync('MON_MDP',10))"`
+> Utilise bien la chaîne **directe** ici : le pooler ne gère pas les migrations.
+> `seed.ts` crée `admin@deuxsaisonsdeplanche.fr` / `password123` — **change ce mot de passe** ensuite
+> (via `/compte/parametres` une fois connecté, ou Prisma Studio).
 
-Pense à changer le mot de passe des comptes de démo si tu utilises l'option A.
+## 5. Variables d'environnement Vercel
 
-## 5. Stripe (si paiement en ligne)
+Settings → Environment Variables → ajouter (cocher **Production**, **Preview**, **Development**) :
 
-1. Dashboard Stripe → clés API → `STRIPE_SECRET_KEY` (live).
+| Variable | Valeur |
+| --- | --- |
+| `AUTH_SECRET` | sortie de `openssl rand -base64 32` |
+| `APP_URL` | l'URL du site (`https://2saisons-xxx.vercel.app` puis ton domaine) |
+| `UPLOADS_DRIVER` | `blob` |
+| `MEMBERSHIP_PRICE_CENTS` | `2000` |
+| `MEMBERSHIP_DURATION_MONTHS` | `12` |
+| `STRIPE_SECRET_KEY` | *(optionnel — vide = adhésion validée sans paiement)* |
+| `STRIPE_WEBHOOK_SECRET` | *(voir §7)* |
+
+`DATABASE_URL` et `BLOB_READ_WRITE_TOKEN` sont déjà présents (étapes 2 et 3).
+
+## 6. Redéployer
+
+Deployments → dernier déploiement → **⋯ → Redeploy**. Cette fois il doit passer.
+Teste : page d'accueil, `/adhesion`, connexion admin, `/admin`.
+
+## 7. Stripe (si paiement en ligne)
+
+1. Dashboard Stripe → clés API → `STRIPE_SECRET_KEY` (live) dans Vercel.
 2. **Developers → Webhooks → Add endpoint** :
-   - URL : `https://votre-domaine.fr/api/stripe/webhook`
+   - URL : `https://<ton-domaine>/api/stripe/webhook`
    - Événement : `checkout.session.completed`
-   - Copier le **Signing secret** → `STRIPE_WEBHOOK_SECRET` dans Vercel.
-3. Redéployer pour prendre en compte les variables.
+   - Copier le *Signing secret* → `STRIPE_WEBHOOK_SECRET` dans Vercel.
+3. Redéployer.
 
-## 6. Domaine
+## 8. Domaine
 
-**Settings → Domains** → ajouter `deuxsaisonsdeplanche.fr`, suivre la config DNS. Mettre à jour `APP_URL` et l'URL du webhook Stripe en conséquence.
+Settings → Domains → ajouter `deuxsaisonsdeplanche.fr`, suivre la config DNS.
+Mettre à jour `APP_URL` et l'URL du webhook Stripe.
 
 ---
 
 ## Mises à jour ultérieures
 
-- **Code** : `git push` → Vercel redéploie.
-- **Schéma DB** : `npx prisma migrate dev --name xxx` en local → commit → push. Le build prod applique la migration via `prisma migrate deploy`.
-- **Rollback** : onglet *Deployments* de Vercel → *Promote to Production* sur une version antérieure (attention aux migrations non réversibles).
+- **Code** : `git push` → Vercel redéploie tout seul.
+- **Schéma DB** : `npx prisma migrate dev --name xxx` en local → commit → push →
+  `DATABASE_URL="<directe Neon>" npx prisma migrate deploy` pour appliquer en prod.
+- **Rollback** : Deployments → *Promote to Production* sur une version antérieure.
 
 ## Tâche récurrente conseillée
 
-Un cron (Vercel Cron ou GitHub Action) pour passer les adhésions échues en `expired` et envoyer les rappels de renouvellement. Non inclus — voir `getMembershipView` qui gère déjà l'affichage à la lecture.
+Un cron (Vercel Cron) pour passer les adhésions échues en `expired` et envoyer les rappels de
+renouvellement. Non inclus — `getMembershipView` gère déjà l'affichage à la lecture.
