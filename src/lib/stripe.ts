@@ -1,5 +1,6 @@
 import "server-only";
 import Stripe from "stripe";
+import { siteUrl } from "@/lib/site";
 
 const key = process.env.STRIPE_SECRET_KEY;
 
@@ -12,6 +13,5 @@ export const stripe = key ? new Stripe(key) : null;
 export const stripeEnabled = Boolean(stripe);
 
 export function appUrl(path = "") {
-  const base = process.env.APP_URL ?? "http://localhost:3000";
-  return `${base}${path}`;
+  return siteUrl(path);
 }
