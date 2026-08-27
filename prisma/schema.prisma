@@ -1,0 +1,157 @@
+// =========================================================
+//  Deux saisons de planche — schéma de base de données
+//  Prisma + PostgreSQL
+// =========================================================
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+  // Connexion directe (non poolée) pour `prisma migrate`. En local, mettre la même valeur
+  // que DATABASE_URL. Sur Neon/Supabase, utiliser l'URL directe (port 5432, sans -pooler).
+  directUrl = env("DIRECT_URL")
+}
+
+// ---------- Enums ----------
+
+enum Role {
+  member
+  admin
+}
+
+enum MembershipStatus {
+  pending // paiement en attente / dossier incomplet
+  active
+  expired
+}
+
+enum DocumentType {
+  medical_certificate // certificat médical
+  insurance           // attestation d'assurance
+}
+
+enum DocumentStatus {
+  pending
+  approved
+  rejected
+}
+
+enum SpotType {
+  street
+  park
+  bowl
+}
+
+enum RegistrationStatus {
+  registered
+  cancelled
+  attended
+}
+
+// ---------- Modèles ----------
+
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  passwordHash String
+  role         Role     @default(member)
+  firstname    String
+  lastname     String
+  phone        String?
+  avatarUrl    String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  memberships   Membership[]
+  registrations EventRegistration[]
+  documents     Document[]
+
+  @@map("users")
+}
+
+model Membership {
+  id          String           @id @default(cuid())
+  userId      String
+  user        User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  startDate   DateTime
+  endDate     DateTime
+  status      MembershipStatus @default(pending)
+  amountCents Int              @default(0)
+  paymentId   String? // Stripe PaymentIntent id ou référence HelloAsso
+  receiptUrl  String? // reçu d'adhésion (PDF)
+  documentUrl String? // justificatif principal lié à l'adhésion (compat. cahier des charges)
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+
+  @@index([userId])
+  @@index([status])
+  @@map("memberships")
+}
+
+model Event {
+  id          String    @id @default(cuid())
+  slug        String    @unique
+  title       String
+  date        DateTime
+  endDate     DateTime?
+  location    String
+  description String
+  imageUrl    String?
+  capacity    Int?
+  published   Boolean   @default(true)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  registrations EventRegistration[]
+
+  @@index([date])
+  @@map("events")
+}
+
+model EventRegistration {
+  id               String             @id @default(cuid())
+  eventId          String
+  event            Event              @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  userId           String
+  user             User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  status           RegistrationStatus @default(registered)
+  registrationDate DateTime           @default(now())
+
+  @@unique([eventId, userId])
+  @@index([userId])
+  @@map("event_registrations")
+}
+
+model Document {
+  id         String         @id @default(cuid())
+  userId     String
+  user       User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type       DocumentType
+  url        String
+  filename   String
+  status     DocumentStatus @default(pending)
+  note       String? // motif de rejet / commentaire admin
+  uploadedAt DateTime       @default(now())
+  reviewedAt DateTime?
+
+  @@index([userId])
+  @@index([status])
+  @@map("documents")
+}
+
+model Spot {
+  id          String   @id @default(cuid())
+  name        String
+  address     String
+  type        SpotType
+  description String
+  latitude    Float?
+  longitude   Float?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("spots")
+}
