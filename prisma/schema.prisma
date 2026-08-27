@@ -48,6 +48,12 @@ enum RegistrationStatus {
   attended
 }
 
+enum TaskStatus {
+  todo
+  doing
+  done
+}
+
 // ---------- Modèles ----------
 
 model User {
@@ -65,6 +71,7 @@ model User {
   memberships   Membership[]
   registrations EventRegistration[]
   documents     Document[]
+  tasks         Task[]
 
   @@map("users")
 }
@@ -151,4 +158,19 @@ model Spot {
   updatedAt   DateTime @updatedAt
 
   @@map("spots")
+}
+
+model Task {
+  id          String     @id @default(cuid())
+  title       String
+  description String?
+  status      TaskStatus @default(todo)
+  position    Int        @default(0) // ordre dans la colonne
+  createdById String
+  createdBy   User       @relation(fields: [createdById], references: [id], onDelete: Cascade)
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  @@index([status, position])
+  @@map("tasks")
 }
