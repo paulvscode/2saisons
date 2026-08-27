@@ -15,7 +15,7 @@ export default async function EventsPage() {
   return (
     <>
       <section className="page-intro wrap">
-        <p className="eyebrow">Calendrier &amp; terrains de jeu</p>
+        <p className="eyebrow">Calendrier</p>
         <h1>Événements &amp; Spots</h1>
       </section>
 

@@ -87,7 +87,7 @@ export default async function HomePage() {
           </Reveal>
           <p className="lead muted">
             Nous ouvrons des créneaux, entretenons les spots, formons les nouveaux et faisons vivre
-            la culture skate localement — sans esprit de compétition fermé.
+            la culture skate localement.
           </p>
           <div>
             <Link className="btn" href="/adhesion">
