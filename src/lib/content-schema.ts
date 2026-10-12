@@ -163,7 +163,7 @@ export const CONTENT_SECTIONS: ContentSection[] = [
       "mission.title": text("Titre de la page", "Notre objectif"),
       "mission.intro": area(
         "Intro de la page",
-        "Le skateboard a évolué. La pratique est maintenant un sport intégré aux Jeux Olympiques mais garde un ancrage profond dans l’espace urbain. Cette dualité offre une opportunité unique de développer une cohabitation entre usagers et pratiquants tout en créant une image de marque forte pour la ville. Le Havre a déjà de solides atouts : le skatepark de la plage, l’un des plus grands skateparks gratuits de France, l’étape du FISE chaque fin d’été, et une municipalité dont les élus travaillent aux côtés de la communauté de la glisse.",
+        "Le skateboard a évolué. La pratique est maintenant un sport intégré aux Jeux Olympiques mais garde un ancrage profond dans l’espace urbain. Cette dualité offre une opportunité unique de développer une cohabitation entre usagers et pratiquants tout en créant une image de marque forte pour la ville. Nous voulons construire ce projet avec la municipalité et ses élus, déjà engagés aux côtés de la communauté de la glisse.",
         "Facultatif.",
       ),
       "mission.city.eyebrow": text("Le Havre — surtitre", "Le Havre"),
