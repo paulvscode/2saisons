@@ -108,9 +108,10 @@ export const CONTENT_SECTIONS: ContentSection[] = [
     fields: {
       "home.hero.image": image("Photo principale", "/media/hero.jpg", "Paysage, ~1600×1000."),
       "home.hero.imageAlt": text("Description de la photo (accessibilité)", "Skateur en plein grind sur un curb"),
+      "home.hero.credit": text("Crédit photo", "", "Affiché en bas à droite de la photo. Vide = pas de crédit."),
       "home.hero.eyebrow": text("Surtitre", "Association loi 1901"),
       "home.hero.title": text("Titre", "Deux saisons de planche"),
-      "home.hero.mission": area("Mission", "Promouvoir la pratique du skateboard et la culture associée."),
+      "home.hero.mission": area("Mission", "Faire vivre la culture skateboard dans le quotidien."),
       "home.hero.cta": text("Bouton", "Nous rejoindre"),
       "home.hero.missionCta": text("Bouton secondaire (vers Mission)", "Notre mission"),
     },

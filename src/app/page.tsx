@@ -14,6 +14,7 @@ export default async function HomePage() {
           <SiteImage
             src={c["home.hero.image"]}
             alt={c["home.hero.imageAlt"]}
+            credit={c["home.hero.credit"]}
             ratio="hero"
             priority
             sizes="(min-width: 74rem) 74rem, 100vw"

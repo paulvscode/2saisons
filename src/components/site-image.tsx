@@ -14,6 +14,7 @@ export function SiteImage({
   placeholder,
   sizes = "(min-width: 46rem) 46rem, 100vw",
   priority,
+  credit,
 }: {
   src: string;
   alt: string;
@@ -21,6 +22,8 @@ export function SiteImage({
   placeholder?: string;
   sizes?: string;
   priority?: boolean;
+  /** Crédit photo, affiché en bas à droite de l'image. */
+  credit?: string;
 }) {
   if (!src) {
     return <div className={`ph ph--${ratio}`} role="img" aria-label={alt} data-label={placeholder ?? alt} />;
@@ -28,6 +31,7 @@ export function SiteImage({
   return (
     <div className={`media ph--${ratio}`}>
       <Image src={src} alt={alt} fill sizes={sizes} priority={priority} />
+      {credit && <small className="media__credit">{credit}</small>}
     </div>
   );
 }
