@@ -162,7 +162,7 @@ export const CONTENT_SECTIONS: ContentSection[] = [
       "mission.title": text("Titre de la page", "Notre objectif"),
       "mission.intro": area(
         "Intro de la page",
-        "Le skateboard a évolué. La pratique est maintenant un sport intégré aux Jeux Olympiques mais garde un ancrage profond dans l’espace urbain. Cette dualité offre une opportunité unique de développer une cohabitation entre usagers et pratiquants tout en créant une image de marque forte pour la ville.",
+        "Le skateboard a évolué. La pratique est maintenant un sport intégré aux Jeux Olympiques mais garde un ancrage profond dans l’espace urbain. Cette dualité offre une opportunité unique de développer une cohabitation entre usagers et pratiquants tout en créant une image de marque forte pour la ville. Le Havre a déjà de solides atouts : le skatepark de la plage, l’un des plus grands skateparks gratuits de France, l’étape du FISE chaque fin d’été, et une municipalité dont les élus travaillent aux côtés de la communauté de la glisse.",
         "Facultatif.",
       ),
       "mission.city.eyebrow": text("Le Havre — surtitre", "Le Havre"),
@@ -170,10 +170,7 @@ export const CONTENT_SECTIONS: ContentSection[] = [
       "mission.city.text": area(
         "Le Havre — texte",
         [
-          "Reconstruite par Auguste Perret après la guerre et inscrite au patrimoine mondial de l’UNESCO, Le Havre offre un décor unique : béton brut, grandes perspectives, esplanades ouvertes et sols lisses. Une architecture qui dessine, presque malgré elle, un terrain idéal pour le skate, la trottinette, le BMX, le roller et toute la culture street.",
-          "Face à la mer, le skatepark de la plage — 1 800 m², dont un bowl de 1 200 m² — était à son ouverture le plus grand skatepark gratuit de plein air de France. Autour de lui, la promenade réaménagée jusqu’au MuMa, le quai de Southampton, la place Vavasseur ou le pumptrack du parc Jean-Dubuffet font de toute la ville un terrain de pratique.",
-          "Chaque fin d’été, le Week-end de la Glisse accueille sur l’esplanade de la plage une étape du FISE Xperience Series : trois jours de compétitions gratuites et ouvertes à tous, où des riders de niveau international côtoient la scène locale.",
-          "La Ville investit depuis plusieurs années dans des équipements en accès libre, et les acteurs locaux — l’Ultra Skate Club, Le Havre Skate Krew et les riders du quotidien — partagent la même envie : faire de la glisse urbaine un moteur de dynamisme pour Le Havre.",
+          "Reconstruite par Auguste Perret, modernisée au fil des mandats par ses élus et classée à l’UNESCO, Le Havre offre béton brut, grandes esplanades et sols lisses : un terrain idéal pour le skate, la trottinette, le BMX et le roller. Son skatepark de la plage était, à son ouverture, le plus grand d’Europe, et la ville accueille chaque fin d’été une étape du FISE, le festival international des sports extrêmes.",
         ].join("\n\n"),
         "Une ligne vide = un nouveau paragraphe.",
       ),
