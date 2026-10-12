@@ -3,8 +3,8 @@ import { getCurrentUser } from "@/lib/auth";
 import { stripeEnabled } from "@/lib/stripe";
 import { MembershipForm } from "@/components/membership-form";
 import { getContent } from "@/lib/content";
-import { BOARD_COUNT, VALUE_COUNT } from "@/lib/content-schema";
-import { Lines, SiteImage } from "@/components/site-image";
+import { BOARD_COUNT } from "@/lib/content-schema";
+import { SiteImage } from "@/components/site-image";
 
 export const metadata: Metadata = {
   title: "À propos & Adhésion",
@@ -14,9 +14,6 @@ export const metadata: Metadata = {
 
 export default async function AboutMembershipPage() {
   const [user, c] = await Promise.all([getCurrentUser(), getContent()]);
-  const values = Array.from({ length: VALUE_COUNT }, (_, i) => i + 1).filter(
-    (n) => c[`about.values.${n}.title`],
-  );
   const board = Array.from({ length: BOARD_COUNT }, (_, i) => i + 1).filter(
     (n) => c[`about.board.${n}.name`],
   );
@@ -32,38 +29,13 @@ export default async function AboutMembershipPage() {
         <h2 className="h-l" id="about-title">
           {c["about.intro.title"]}
         </h2>
-        <div className="stack-l" style={{ marginTop: "1.5rem" }}>
-          <p className="lead">
-            <Lines text={c["about.intro.lead"]} />
-          </p>
-          <p className="muted">
-            <Lines text={c["about.intro.text"]} />
-          </p>
-        </div>
-        <div style={{ marginTop: "2.5rem" }}>
+        <div style={{ marginTop: "1.5rem" }}>
           <SiteImage
             src={c["about.image"]}
             alt={c["about.imageAlt"]}
             ratio="16x9"
             placeholder="Photo — l'équipe"
           />
-        </div>
-      </section>
-
-      <section className="section wrap" aria-labelledby="values-title">
-        <h2 className="h-l" id="values-title">
-          {c["about.values.title"]}
-        </h2>
-        <div className="values" style={{ marginTop: "2.5rem" }}>
-          {values.map((n, i) => (
-            <div key={n}>
-              <span className="value__n">{String(i + 1).padStart(2, "0")}</span>
-              <h3 className="value__t">{c[`about.values.${n}.title`]}</h3>
-              <p className="muted">
-                <Lines text={c[`about.values.${n}.text`]} />
-              </p>
-            </div>
-          ))}
         </div>
       </section>
 

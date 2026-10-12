@@ -41,15 +41,6 @@ const image = (label: string, value = "", hint?: string): ContentField => ({
   hint,
 });
 
-const VALUES = [
-  ["Accessible", "Créneaux gratuits ou à petit prix, prêt de matériel, aucun niveau requis."],
-  ["Transmission", "Les plus expérimentés accompagnent les nouveaux, sans hiérarchie."],
-  ["Respect", "Des lieux, des riverains, des autres pratiques. On laisse les spots propres."],
-  ["Culture", "Le skate, c'est aussi la vidéo, la musique, le graphisme, le DIY."],
-  ["Autonomie", "Réparer, construire, s'organiser collectivement plutôt que consommer."],
-  ["Inclusif", "Toutes et tous bienvenus, quel que soit l'âge, le genre ou le parcours."],
-];
-
 const BOARD = ["Présidence", "Trésorerie", "Secrétariat & événements"];
 
 /** Mission : un axe = un titre, une intro (facultative) et des points (un par ligne). */
@@ -227,30 +218,8 @@ export const CONTENT_SECTIONS: ContentSection[] = [
       "about.eyebrow": text("Surtitre", "Qui roule, pourquoi, comment nous rejoindre"),
       "about.title": text("Titre de la page", "À propos & Adhésion"),
       "about.intro.title": text("Titre — association", "L'association"),
-      "about.intro.lead": area(
-        "Chapeau",
-        "Deux saisons de planche est née de l'envie de skater ensemble toute l'année, quel que soit le temps — une saison dehors, une saison à l'abri.",
-      ),
-      "about.intro.text": area(
-        "Texte",
-        "Nous sommes un collectif de riders bénévoles. Nous ouvrons des créneaux encadrés, entretenons les spots, accompagnons les débutants et faisons circuler la culture skate. Pas de sélection : si tu poses un pied sur une planche, tu as ta place.",
-      ),
       "about.image": image("Photo de l'équipe", "", "16:9. Vide = placeholder."),
       "about.imageAlt": text("Description de la photo", "Portrait de groupe des membres de l'association"),
-    },
-  },
-  {
-    id: "about-values",
-    title: "À propos — Valeurs",
-    href: "/adhesion",
-    fields: {
-      "about.values.title": text("Titre", "Nos valeurs"),
-      ...Object.fromEntries(
-        VALUES.flatMap(([t, d], i) => [
-          [`about.values.${i + 1}.title`, text(`Valeur ${i + 1} — titre`, t)],
-          [`about.values.${i + 1}.text`, area(`Valeur ${i + 1} — texte`, d)],
-        ]),
-      ),
     },
   },
   {
@@ -301,6 +270,5 @@ export const CONTENT_FIELDS: Record<string, ContentField> = Object.fromEntries(
   CONTENT_SECTIONS.flatMap((s) => Object.entries(s.fields)),
 );
 
-export const VALUE_COUNT = VALUES.length;
 export const BOARD_COUNT = BOARD.length;
 export const MISSION_COUNT = MISSION.length;
