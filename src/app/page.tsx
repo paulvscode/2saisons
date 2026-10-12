@@ -31,6 +31,9 @@ export default async function HomePage() {
             <Link className="btn btn--block" href="/adhesion#adherer">
               {c["home.hero.cta"]} <span className="btn__arrow" aria-hidden="true">→</span>
             </Link>
+            <Link className="btn btn--ghost btn--block" href="/mission">
+              {c["home.hero.missionCta"]} <span className="btn__arrow" aria-hidden="true">→</span>
+            </Link>
           </div>
         </div>
       </section>
