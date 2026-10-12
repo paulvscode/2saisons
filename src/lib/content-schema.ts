@@ -111,7 +111,7 @@ export const CONTENT_SECTIONS: ContentSection[] = [
       "home.hero.eyebrow": text("Surtitre", "Association loi 1901"),
       "home.hero.title": text("Titre", "Deux saisons de planche"),
       "home.hero.mission": area("Mission", "Promouvoir la pratique du skateboard et la culture associée."),
-      "home.hero.cta": text("Bouton", "Rejoindre l'association"),
+      "home.hero.cta": text("Bouton", "Nous rejoindre"),
       "home.hero.missionCta": text("Bouton secondaire (vers Mission)", "Notre mission"),
     },
   },
