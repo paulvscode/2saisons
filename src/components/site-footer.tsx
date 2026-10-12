@@ -1,6 +1,9 @@
 import Link from "next/link";
+import { getContent } from "@/lib/content";
+import { Lines } from "@/components/site-image";
 
-export function SiteFooter() {
+export async function SiteFooter() {
+  const c = await getContent();
   const year = new Date().getFullYear();
   return (
     <footer className="site-footer">
@@ -8,12 +11,10 @@ export function SiteFooter() {
         <div className="site-footer__grid">
           <div>
             <h2>
-              Roule
-              <br />
-              avec nous
+              <Lines text={c["footer.title"]} />
             </h2>
             <p className="muted" style={{ marginTop: "1.5rem", maxWidth: "28ch" }}>
-              Deux saisons de planche — association pour la pratique et la culture du skateboard.
+              <Lines text={c["footer.text"]} />
             </p>
           </div>
 
@@ -24,6 +25,9 @@ export function SiteFooter() {
             <ul className="footer-nav">
               <li>
                 <Link href="/">Accueil</Link>
+              </li>
+              <li>
+                <Link href="/mission">Mission</Link>
               </li>
               <li>
                 <Link href="/evenements">Événements &amp; Spots</Link>
@@ -46,9 +50,7 @@ export function SiteFooter() {
             </p>
             <ul className="footer-nav">
               <li>
-                <a href="mailto:contact@deuxsaisonsdeplanche.fr">
-                  contact@deuxsaisonsdeplanche.fr
-                </a>
+                <a href={`mailto:${c["site.email"]}`}>{c["site.email"]}</a>
               </li>
               <li>
                 <Link href="/mentions-legales">Mentions légales</Link>
@@ -62,7 +64,7 @@ export function SiteFooter() {
 
         <div className="site-footer__meta">
           <span>© {year} Deux saisons de planche</span>
-          <span>Association loi 1901 · RNA W000000000</span>
+          <span>Association loi 1901 · RNA {c["site.rna"]}</span>
         </div>
       </div>
     </footer>

@@ -1,11 +1,14 @@
 import type { Metadata } from "next";
+import { getContent } from "@/lib/content";
+import { Lines } from "@/components/site-image";
 
 export const metadata: Metadata = {
   title: "Mentions légales",
   description: "Informations légales de l'association Deux saisons de planche.",
 };
 
-export default function LegalPage() {
+export default async function LegalPage() {
+  const c = await getContent();
   return (
     <section className="section wrap">
       <p className="eyebrow">Informations légales</p>
@@ -19,11 +22,11 @@ export default function LegalPage() {
           <strong>Deux saisons de planche</strong> — association régie par la loi du 1<sup>er</sup>{" "}
           juillet 1901.
           <br />
-          Siège social : 00 rue de l'Exemple, 00000 Ville.
+          Siège social : {c["site.address"]}.
           <br />
-          RNA : W000000000 · SIREN : 000 000 000 · SIRET : 000 000 000 00000.
+          RNA : {c["site.rna"]} · SIREN : {c["site.siren"]} · SIRET : {c["site.siret"]}.
           <br />
-          Adresse e-mail : contact@deuxsaisonsdeplanche.fr
+          Adresse e-mail : {c["site.email"]}
         </p>
 
         <h3>Directeur de la publication</h3>
@@ -31,8 +34,7 @@ export default function LegalPage() {
 
         <h2>Hébergement</h2>
         <p>
-          Site hébergé par <strong>[Nom de l'hébergeur]</strong>, [adresse de l'hébergeur],
-          [téléphone].
+          Site hébergé par <Lines text={c["site.host"]} />
         </p>
 
         <h2>Propriété intellectuelle</h2>
@@ -52,7 +54,7 @@ export default function LegalPage() {
         <h2>Contact</h2>
         <p>
           Pour toute question relative au site ou à l'association :{" "}
-          <a href="mailto:contact@deuxsaisonsdeplanche.fr">contact@deuxsaisonsdeplanche.fr</a>.
+          <a href={`mailto:${c["site.email"]}`}>{c["site.email"]}</a>.
         </p>
       </div>
     </section>

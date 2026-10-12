@@ -1,0 +1,55 @@
+"use client";
+
+import { useActionState } from "react";
+import type { ContentSection, SiteContent } from "@/lib/content-schema";
+import type { FormState } from "@/lib/action-types";
+import { Field, FormAlert, SubmitButton } from "@/components/ui";
+import { saveContentSection } from "./actions";
+import { ImagePicker } from "./image-picker";
+
+export function SectionForm({
+  section,
+  values,
+  media,
+  accept,
+}: {
+  section: ContentSection;
+  values: SiteContent;
+  media: string[];
+  accept: string;
+}) {
+  const [state, action] = useActionState<FormState, FormData>(saveContentSection, {});
+
+  return (
+    <form className="form" action={action} style={{ marginTop: 0 }}>
+      <input type="hidden" name="section" value={section.id} />
+      {Object.entries(section.fields).map(([key, field]) =>
+        field.type === "image" ? (
+          // La clé change après enregistrement pour vider le champ fichier.
+          <ImagePicker
+            key={`${key}:${values[key]}`}
+            name={key}
+            label={field.label}
+            hint={field.hint}
+            defaultValue={values[key]}
+            media={media}
+            accept={accept}
+          />
+        ) : (
+          <Field
+            key={key}
+            name={key}
+            label={field.label}
+            hint={field.hint}
+            defaultValue={values[key]}
+            textarea={field.type === "textarea"}
+          />
+        ),
+      )}
+      <FormAlert state={state} />
+      <SubmitButton pendingLabel="Enregistrement…" className="btn btn--sm">
+        Enregistrer
+      </SubmitButton>
+    </form>
+  );
+}

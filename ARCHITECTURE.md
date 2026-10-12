@@ -40,6 +40,8 @@ Règles de conception : layout en colonne unique, header collant à 3 liens + ac
 | `/admin/membres` | Liste **filtrable** (recherche nom/e-mail + statut), validation des adhésions, validation/refus des pièces jointes avec motif, **export CSV** |
 | `/admin/evenements` | **CRUD** événements (création, édition inline, suppression, publication) |
 | `/admin/spots` | **CRUD** spots |
+| `/admin/contenu` | Textes et images des pages publiques, une section = un formulaire (choix dans la médiathèque ou téléversement direct) |
+| `/admin/medias` | Médiathèque : téléversement multiple, aperçu, usage, suppression (bloquée si l'image est utilisée) |
 
 ### API (route handlers)
 | URL | Méthode | Rôle |
@@ -48,6 +50,7 @@ Règles de conception : layout en colonne unique, header collant à 3 liens + ac
 | `/api/receipt/[id]` | GET | reçu d'adhésion HTML imprimable — propriétaire ou admin |
 | `/api/admin/members/export` | GET | CSV des membres (admin) |
 | `/api/stripe/webhook` | POST | `checkout.session.completed` → adhésion `active` |
+| `/media/[name]` | GET | sert une image du site depuis `content/media` (cache immuable) |
 
 ## 3. Modèle de données (Prisma)
 
@@ -120,6 +123,21 @@ Admin /admin/membres  ──►  reviewDocument(approved | rejected + note)  ─
 Lecture  /api/documents/[id]  ──►  contrôle doc.userId === user.id || admin
                                    └─ url http(s) → redirect Blob ; sinon → stream fichier local
 ```
+
+## 6 bis. Contenu éditable (textes & images)
+
+Hors base de données, sur disque, versionné avec le code :
+
+```
+src/lib/content-schema.ts   registre des champs éditables (clé, libellé, type text|textarea|image, valeur par défaut)
+content/site.json           valeurs modifiées depuis /admin/contenu (absent = valeurs par défaut)
+content/media/              images téléversées (<nom-slugifié>-<6 hex>.<ext>), servies par /media/<fichier>
+```
+
+Les pages lisent `getContent()` (défauts + surcharges) ; `<SiteImage>` affiche le placeholder hachuré si
+aucune image n'est choisie. Pour rendre un nouveau texte éditable : l'ajouter au registre, puis le lire dans la page.
+
+⚠️ Le disque de Vercel est éphémère et en lecture seule : éditer le contenu **en local**, puis committer `content/`.
 
 ## 7. Statut de cotisation (`getMembershipView`)
 

@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { getContent } from "@/lib/content";
 
 export const metadata: Metadata = {
   title: "Confidentialité & cookies",
@@ -6,7 +7,8 @@ export const metadata: Metadata = {
     "Politique de protection des données personnelles (RGPD) et usage des cookies du site Deux saisons de planche.",
 };
 
-export default function PrivacyPage() {
+export default async function PrivacyPage() {
+  const c = await getContent();
   return (
     <section className="section wrap">
       <p className="eyebrow">RGPD</p>
@@ -17,8 +19,7 @@ export default function PrivacyPage() {
       <div className="prose" style={{ marginTop: "var(--space-l)" }}>
         <h2>Responsable du traitement</h2>
         <p>
-          Association Deux saisons de planche, siège social 00 rue de l'Exemple, 00000 Ville —
-          contact@deuxsaisonsdeplanche.fr.
+          Association Deux saisons de planche, siège social {c["site.address"]} — {c["site.email"]}.
         </p>
 
         <h2>Données collectées et finalités</h2>
@@ -63,11 +64,11 @@ export default function PrivacyPage() {
         <p>
           Vous disposez d'un droit d'accès, de rectification, d'effacement, de limitation, d'opposition
           et de portabilité. Exercice à{" "}
-          <a href="mailto:contact@deuxsaisonsdeplanche.fr">contact@deuxsaisonsdeplanche.fr</a>. Vous
+          <a href={`mailto:${c["site.email"]}`}>{c["site.email"]}</a>. Vous
           pouvez introduire une réclamation auprès de la CNIL (www.cnil.fr).
         </p>
 
-        <h2>Cookies</h2>
+        <h2 id="cookies">Cookies</h2>
         <p>
           Ce site n'utilise <strong>aucun cookie de traçage, de publicité ou de mesure d'audience
           tierce</strong>. Seul un cookie strictement nécessaire est déposé :
@@ -81,6 +82,15 @@ export default function PrivacyPage() {
         <p>
           Un choix technique local (<code>2sdp_cookie_choice</code>) est stocké dans votre navigateur
           pour ne plus afficher le bandeau d'information — il ne quitte jamais votre appareil.
+        </p>
+        <p>
+          La carte de la page « Événements &amp; Spots » est fournie par <strong>Google Maps</strong>.
+          Elle n'est chargée que si vous cliquez sur « Afficher la carte » : Google peut alors déposer
+          ses propres cookies, régis par sa{" "}
+          <a href="https://policies.google.com/privacy" target="_blank" rel="noopener noreferrer">
+            politique de confidentialité
+          </a>
+          .
         </p>
       </div>
     </section>

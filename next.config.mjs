@@ -8,8 +8,14 @@ const nextConfig = {
   typescript: { ignoreBuildErrors: true },
   experimental: {
     serverActions: {
-      bodySizeLimit: "8mb", // justificatifs (certificat médical, attestation d'assurance)
+      // justificatifs (6 Mo) et images du site (8 Mo/image, plusieurs par envoi depuis l'admin)
+      bodySizeLimit: "40mb",
     },
+  },
+  // content/ (textes + images du site) est lu sur disque à l'exécution : l'embarquer
+  // dans les fonctions serverless, sinon il est absent en production.
+  outputFileTracingIncludes: {
+    "/**/*": ["./content/**/*"],
   },
   images: {
     remotePatterns: [{ protocol: "https", hostname: "**" }],

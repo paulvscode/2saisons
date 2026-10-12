@@ -1,13 +1,14 @@
 import type { Metadata } from "next";
 import { requireUser, getMembershipView } from "@/lib/auth";
 import { formatDateLong } from "@/lib/format";
+import { getContent } from "@/lib/content";
 import { ProfileForm } from "./profile-form";
 
 export const metadata: Metadata = { title: "Mon compte" };
 
 export default async function SettingsPage() {
   const user = await requireUser();
-  const view = await getMembershipView(user.id);
+  const [view, c] = await Promise.all([getMembershipView(user.id), getContent()]);
 
   return (
     <>
@@ -53,7 +54,7 @@ export default async function SettingsPage() {
         <p className="muted" style={{ marginTop: ".5rem", maxWidth: "52ch" }}>
           Pour exercer tes droits d'accès, de rectification, de portabilité ou de suppression,
           écris à{" "}
-          <a href="mailto:contact@deuxsaisonsdeplanche.fr">contact@deuxsaisonsdeplanche.fr</a>. La
+          <a href={`mailto:${c["site.email"]}`}>{c["site.email"]}</a>. La
           suppression du compte entraîne l'effacement de tes données sous 30 jours, hors obligations
           comptables légales.
         </p>

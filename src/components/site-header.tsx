@@ -9,9 +9,10 @@ type Props = {
   user: { firstname: string; role: Role } | null;
 };
 
-/** Navigation principale — 4 liens publics + 1 accès espace personnel. */
+/** Navigation principale — 5 liens publics + 1 accès espace personnel. */
 const LINKS = [
   { href: "/", label: "Accueil" },
+  { href: "/mission", label: "Mission" },
   { href: "/evenements", label: "Événements & Spots" },
   { href: "/usc", label: "USC" },
   { href: "/adhesion", label: "À propos & Adhésion" },

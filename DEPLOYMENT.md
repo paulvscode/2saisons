@@ -9,6 +9,9 @@
 > ⚠️ Le disque de Vercel est **éphémère** : `UPLOADS_DRIVER=local` ne fonctionne pas en prod, d'où Vercel Blob.
 > Le build Vercel ne touche pas à la base (`build = prisma generate && next build`). Les migrations
 > se lancent à la main depuis ta machine (étape 4).
+>
+> **Textes & images du site** (`content/`) : modifiables via `/admin/contenu` et `/admin/medias` **en local uniquement**
+> (disque Vercel en lecture seule). Éditer en local → committer `content/` → `git push` pour publier.
 
 ---
 
