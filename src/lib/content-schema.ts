@@ -111,7 +111,7 @@ export const CONTENT_SECTIONS: ContentSection[] = [
       "home.hero.credit": text("Crédit photo", "", "Affiché en bas à droite de la photo. Vide = pas de crédit."),
       "home.hero.eyebrow": text("Surtitre", "Association loi 1901"),
       "home.hero.title": text("Titre", "Deux saisons de planche"),
-      "home.hero.mission": area("Mission", "Faire vivre la culture skateboard dans le quotidien."),
+      "home.hero.mission": area("Mission", "Faire vivre la culture du skateboard dans le quotidien."),
       "home.hero.cta": text("Bouton", "Nous rejoindre"),
       "home.hero.missionCta": text("Bouton secondaire (vers Mission)", "Notre mission"),
     },
