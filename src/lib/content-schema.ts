@@ -165,6 +165,20 @@ export const CONTENT_SECTIONS: ContentSection[] = [
         "Le skateboard a évolué. La pratique est maintenant un sport intégré aux Jeux Olympiques mais garde un ancrage profond dans l’espace urbain. Cette dualité offre une opportunité unique de développer une cohabitation entre usagers et pratiquants tout en créant une image de marque forte pour la ville.",
         "Facultatif.",
       ),
+      "mission.city.eyebrow": text("Le Havre — surtitre", "Le Havre"),
+      "mission.city.title": text("Le Havre — titre", "Une ville faite pour la glisse"),
+      "mission.city.text": area(
+        "Le Havre — texte",
+        [
+          "Reconstruite par Auguste Perret après la guerre et inscrite au patrimoine mondial de l’UNESCO, Le Havre offre un décor unique : béton brut, grandes perspectives, esplanades ouvertes et sols lisses. Une architecture qui dessine, presque malgré elle, un terrain idéal pour le skate, la trottinette, le BMX, le roller et toute la culture street.",
+          "Face à la mer, le skatepark de la plage — 1 800 m², dont un bowl de 1 200 m² — était à son ouverture le plus grand skatepark gratuit de plein air de France. Autour de lui, la promenade réaménagée jusqu’au MuMa, le quai de Southampton, la place Vavasseur ou le pumptrack du parc Jean-Dubuffet font de toute la ville un terrain de pratique.",
+          "Chaque fin d’été, le Week-end de la Glisse accueille sur l’esplanade de la plage une étape du FISE Xperience Series : trois jours de compétitions gratuites et ouvertes à tous, où des riders de niveau international côtoient la scène locale.",
+          "La Ville investit depuis plusieurs années dans des équipements en accès libre, et les acteurs locaux — l’Ultra Skate Club, Le Havre Skate Krew et les riders du quotidien — partagent la même envie : faire de la glisse urbaine un moteur de dynamisme pour Le Havre.",
+        ].join("\n\n"),
+        "Une ligne vide = un nouveau paragraphe.",
+      ),
+      "mission.city.image": image("Le Havre — photo", "", "16:9, facultative. Vide = pas de photo."),
+      "mission.city.imageAlt": text("Le Havre — description de la photo", "Skate au Havre"),
       ...Object.fromEntries(
         MISSION.flatMap(([title, intro, points], i) => [
           [`mission.${i + 1}.title`, text(`Axe ${i + 1} — titre`, title)],

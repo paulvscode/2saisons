@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { getContent } from "@/lib/content";
 import { MISSION_COUNT } from "@/lib/content-schema";
-import { Lines } from "@/components/site-image";
+import { Lines, SiteImage } from "@/components/site-image";
 
 export const metadata: Metadata = {
   title: "Mission",
@@ -17,6 +17,26 @@ export default async function MissionPage() {
 
   return (
     <>
+      <section className="section invert" aria-labelledby="city-title">
+        <div className="wrap stack-l">
+          <p className="eyebrow">{c["mission.city.eyebrow"]}</p>
+          <h2 className="h-l" id="city-title">
+            {c["mission.city.title"]}
+          </h2>
+          {c["mission.city.text"]
+            .split(/\n\s*\n/)
+            .filter((p) => p.trim())
+            .map((paragraph, i) => (
+              <p key={i} className={i === 0 ? "lead" : "muted"}>
+                <Lines text={paragraph.trim()} />
+              </p>
+            ))}
+          {c["mission.city.image"] && (
+            <SiteImage src={c["mission.city.image"]} alt={c["mission.city.imageAlt"]} ratio="16x9" />
+          )}
+        </div>
+      </section>
+
       <section className="page-intro wrap">
         <p className="eyebrow">{c["mission.eyebrow"]}</p>
         <h1>{c["mission.title"]}</h1>
@@ -27,7 +47,7 @@ export default async function MissionPage() {
         )}
       </section>
 
-      <section className="section section--tight wrap">
+      <section className="section wrap">
         {axes.map((n, i) => {
           const points = c[`mission.${n}.points`]
             .split("\n")
