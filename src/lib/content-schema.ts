@@ -133,17 +133,6 @@ export const CONTENT_SECTIONS: ContentSection[] = [
         "Le Havre, France",
         "Ce qu'on taperait dans Google Maps (ville, adresse, lieu).",
       ),
-      "events.links.title": text("Titre — liens", "Inspirations"),
-      "events.links": area(
-        "Liens",
-        [
-          "Bordeaux, capitale du skate-urbanisme | https://www.bordeaux-tourisme.com/skate-urbanisme",
-          "Nantes : une charte de bonne pratique pour les riders | https://metropole.nantes.fr/actualites/skate-une-charte-de-bonne-pratique-pour-les-riders-nantais",
-          "Connect, festival du skate-urbanisme — le programme | https://connect-skaturbanism-festival.com/programme/",
-          "Malmö, la ville du skate devenue adulte (en anglais) | https://urbannext.net/the-grown-up-skateboarding-city-of-malmo/",
-        ].join("\n"),
-        "Un lien par ligne : Titre | https://…",
-      ),
     },
   },
   {
@@ -182,32 +171,28 @@ export const CONTENT_SECTIONS: ContentSection[] = [
     },
   },
   {
-    id: "usc",
-    title: "USC — Ultra Skate Club",
-    href: "/usc",
+    id: "links",
+    title: "Liens",
+    href: "/liens",
     fields: {
-      "usc.eyebrow": text("Surtitre", "Ultra Skate Club"),
-      "usc.title": text("Titre de la page", "USC"),
-      "usc.intro.title": text("Titre — présentation", "Un club, des cours, une progression"),
-      "usc.intro.lead": area(
-        "Chapeau",
-        "L'Ultra Skate Club (USC) est un club de skate qui propose des cours de skateboard encadrés, du premier push aux premiers tricks.",
+      "links.title": text("Titre de la page", "Liens"),
+      "links.inspirations.title": text("Inspirations — titre", "Inspirations"),
+      "links.inspirations": area(
+        "Inspirations — liens",
+        [
+          "Bordeaux, capitale du skate-urbanisme | https://www.bordeaux-tourisme.com/skate-urbanisme",
+          "Nantes : une charte de bonne pratique pour les riders | https://metropole.nantes.fr/actualites/skate-une-charte-de-bonne-pratique-pour-les-riders-nantais",
+          "Le programme de Connect, festival du skate-urbanisme | https://connect-skaturbanism-festival.com/programme/",
+          "Malmö, la ville du skate devenue adulte (en anglais) | https://urbannext.net/the-grown-up-skateboarding-city-of-malmo/",
+        ].join("\n"),
+        "Un lien par ligne : Titre | https://…",
       ),
-      "usc.intro.text": area(
-        "Texte",
-        "Séances collectives ou individuelles, tous âges et tous niveaux : l'USC accompagne celles et ceux qui veulent apprendre, se remettre en selle ou passer un cap, dans le même esprit que « Deux saisons de planche » — accessible, sans pression, orienté plaisir.",
+      "links.partners.title": text("Voir aussi — titre", "Voir aussi"),
+      "links.partners": area(
+        "Voir aussi — liens",
+        "Ultra Skate Club (USC) | https://www.ultraskateclub.com/",
+        "Un lien par ligne : Titre | https://…",
       ),
-      "usc.image": image("Photo", "", "16:9. Vide = placeholder."),
-      "usc.imageAlt": text("Description de la photo", "Cours de skateboard de l'Ultra Skate Club"),
-      "usc.cta.eyebrow": text("Surtitre — inscriptions", "S'inscrire aux cours"),
-      "usc.cta.title": area("Titre — inscriptions", "Toutes les infos et les inscriptions sur le site de l'USC"),
-      "usc.cta.text": area(
-        "Texte — inscriptions",
-        "Planning des cours, tarifs et formulaire d'inscription sont gérés directement par l'Ultra Skate Club.",
-      ),
-      "usc.cta.url": text("Lien du site USC", "https://www.ultraskateclub.com/"),
-      "usc.cta.button": text("Bouton", "Aller sur ultraskateclub.com"),
-      "usc.contact": text("Phrase de contact", "Une question sur le lien entre l'USC et l'association ?"),
     },
   },
   {

@@ -14,7 +14,7 @@ const LINKS = [
   { href: "/", label: "Accueil" },
   { href: "/mission", label: "Mission" },
   { href: "/evenements", label: "Événements & Spots" },
-  { href: "/usc", label: "USC" },
+  { href: "/liens", label: "Liens" },
   { href: "/adhesion", label: "À propos & Adhésion" },
 ];
 

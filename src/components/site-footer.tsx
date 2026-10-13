@@ -33,7 +33,7 @@ export async function SiteFooter() {
                 <Link href="/evenements">Événements &amp; Spots</Link>
               </li>
               <li>
-                <Link href="/usc">USC — Ultra Skate Club</Link>
+                <Link href="/liens">Liens</Link>
               </li>
               <li>
                 <Link href="/adhesion">À propos &amp; Adhésion</Link>

@@ -17,6 +17,9 @@ const nextConfig = {
   outputFileTracingIncludes: {
     "/**/*": ["./content/**/*"],
   },
+  async redirects() {
+    return [{ source: "/usc", destination: "/liens", permanent: true }];
+  },
   images: {
     remotePatterns: [{ protocol: "https", hostname: "**" }],
   },
