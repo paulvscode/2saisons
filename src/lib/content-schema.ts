@@ -115,10 +115,7 @@ export const CONTENT_SECTIONS: ContentSection[] = [
       "home.events.eyebrow": text("Surtitre", "Prochainement"),
       "home.events.title": text("Titre (avec événements)", "Les prochains rendez-vous"),
       "home.events.emptyTitle": text("Titre (sans événement)", "Agenda en préparation"),
-      "home.events.empty": area(
-        "Texte (sans événement)",
-        "Les prochaines sessions sont en cours de calage. Reviens vite ou adhère pour être prévenu·e.",
-      ),
+      "home.events.empty": area("Texte (sans événement)", "Pas d'événement prévu pour le moment."),
       "home.events.cta": text("Bouton", "Voir tous les événements & spots"),
     },
   },
