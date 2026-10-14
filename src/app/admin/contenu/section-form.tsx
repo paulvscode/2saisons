@@ -37,6 +37,18 @@ export function SectionForm({
             media={media}
             accept={field.vector ? acceptVector : accept}
           />
+        ) : field.type === "choice" ? (
+          <div key={key} className="field">
+            <label htmlFor={`f-${key}`}>{field.label}</label>
+            <select id={`f-${key}`} name={key} defaultValue={values[key]}>
+              {field.options?.map((o) => (
+                <option key={o.value} value={o.value}>
+                  {o.label}
+                </option>
+              ))}
+            </select>
+            {field.hint && <p className="field__hint">{field.hint}</p>}
+          </div>
         ) : (
           <Field
             key={key}

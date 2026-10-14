@@ -51,7 +51,12 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   const [user, content] = await Promise.all([getCurrentUser(), getContent()]);
 
   return (
-    <html lang="fr" className={inter.variable} suppressHydrationWarning>
+    <html
+      lang="fr"
+      className={inter.variable}
+      data-logo-align={content["site.logoAlign"]}
+      suppressHydrationWarning
+    >
       <body suppressHydrationWarning>
         <a className="skip-link" href="#main">
           Aller au contenu

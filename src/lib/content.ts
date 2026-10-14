@@ -5,6 +5,7 @@ import { tmpdir } from "node:os";
 import { randomBytes } from "node:crypto";
 import { execFile } from "node:child_process";
 import { promisify } from "node:util";
+import { trimSvgLogo } from "./svg-trim";
 import { CONTENT_FIELDS, CONTENT_SECTIONS, type SiteContent } from "./content-schema";
 
 /**
@@ -131,8 +132,9 @@ async function pdftocairo(args: string[]) {
 }
 
 /**
- * Fichier Adobe Illustrator (.ai) : enregistré en SVG (logo net à toute taille) et en PNG
- * transparent 512 px (favicon). Nécessite un .ai « compatible PDF » (option par défaut d'Illustrator).
+ * Fichier Adobe Illustrator (.ai) : enregistré en SVG (logo net à toute taille), recadré sur le
+ * dessin (marges du plan de travail retirées), et en PNG transparent 512 px (favicon).
+ * Nécessite un .ai « compatible PDF » (option par défaut d'Illustrator).
  */
 async function storeIllustrator(file: File): Promise<string> {
   if (file.size > AI_MAX_BYTES) throw new Error(`« ${file.name} » : 30 Mo maximum.`);
@@ -151,7 +153,7 @@ async function storeIllustrator(file: File): Promise<string> {
     await mkdir(MEDIA_DIR, { recursive: true });
     // Première planche de travail uniquement.
     await pdftocairo(["-svg", "-f", "1", "-l", "1", src, join(MEDIA_DIR, `${base}.svg`)]);
-    await pdftocairo(["-png", "-singlefile", "-transp", "-scale-to", "512", "-f", "1", "-l", "1", src, join(MEDIA_DIR, base)]);
+    await trimSvgLogo(join(MEDIA_DIR, `${base}.svg`), join(MEDIA_DIR, `${base}.png`));
   } catch (e) {
     await rm(join(MEDIA_DIR, `${base}.svg`), { force: true });
     await rm(join(MEDIA_DIR, `${base}.png`), { force: true });

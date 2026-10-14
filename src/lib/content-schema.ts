@@ -5,7 +5,7 @@
  * Pour rendre un nouveau texte éditable : l'ajouter ici, puis le lire via getContent().
  */
 
-export type ContentFieldType = "text" | "textarea" | "image";
+export type ContentFieldType = "text" | "textarea" | "image" | "choice";
 
 export type ContentField = {
   label: string;
@@ -14,6 +14,8 @@ export type ContentField = {
   hint?: string;
   /** Image : accepte aussi les fichiers Illustrator (.ai), convertis en SVG + PNG. */
   vector?: boolean;
+  /** Choix : valeurs possibles (liste déroulante). */
+  options?: { value: string; label: string }[];
 };
 
 export type ContentSection = {
@@ -36,6 +38,12 @@ const area = (label: string, value: string, hint?: string): ContentField => ({
   default: value,
   hint,
 });
+const choice = (
+  label: string,
+  value: string,
+  options: { value: string; label: string }[],
+  hint?: string,
+): ContentField => ({ label, type: "choice", default: value, options, hint });
 const image = (label: string, value = "", hint?: string): ContentField => ({
   label,
   type: "image",
@@ -90,6 +98,15 @@ export const CONTENT_SECTIONS: ContentSection[] = [
         ),
         vector: true,
       },
+      "site.logoAlign": choice(
+        "Alignement du logo",
+        "left",
+        [
+          { value: "left", label: "À gauche (menu à droite)" },
+          { value: "center", label: "Centré (sur ordinateur, menu centré en dessous)" },
+        ],
+        "S'applique aussi au nom en texte quand aucun logo n'est choisi.",
+      ),
       "site.email": text("E-mail de contact", "contact@deuxsaisonsdeplanche.fr"),
       "site.address": text("Siège social", "00 rue de l'Exemple, 00000 Ville"),
       "site.rna": text("Numéro RNA", "W000000000"),

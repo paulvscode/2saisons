@@ -10,6 +10,20 @@ function uploadedFile(value: FormDataEntryValue | null): File | null {
   return value instanceof File && value.size > 0 ? value : null;
 }
 
+/**
+ * Sur Vercel, le disque est en lecture seule : content/ (textes + images du site) se modifie
+ * en local, puis est publié par un push. Renvoie le message à afficher, ou null en local.
+ */
+function readOnlyOnline(): FormState | null {
+  return process.env.VERCEL
+    ? {
+        ok: false,
+        message:
+          "Sur le site en ligne, les textes et images ne peuvent pas être enregistrés. Fais la modification sur ta version locale (localhost), puis publie-la avec un push.",
+      }
+    : null;
+}
+
 function revalidateSite() {
   revalidatePath("/", "layout");
 }
@@ -17,6 +31,8 @@ function revalidateSite() {
 /** Enregistre tous les champs d'une section (textes + images, avec téléversement éventuel). */
 export async function saveContentSection(_prev: FormState, formData: FormData): Promise<FormState> {
   await requireAdmin();
+  const blocked = readOnlyOnline();
+  if (blocked) return blocked;
   const section = CONTENT_SECTIONS.find((s) => s.id === formData.get("section"));
   if (!section) return { ok: false, message: "Section inconnue." };
 
@@ -26,6 +42,9 @@ export async function saveContentSection(_prev: FormState, formData: FormData): 
       if (field.type === "image") {
         const file = uploadedFile(formData.get(`${key}__file`));
         values[key] = file ? await storeMedia(file) : String(formData.get(key) ?? "");
+      } else if (field.type === "choice") {
+        const value = String(formData.get(key) ?? "");
+        values[key] = field.options?.some((o) => o.value === value) ? value : field.default;
       } else {
         values[key] = String(formData.get(key) ?? "").replace(/\r\n/g, "\n");
       }
@@ -42,6 +61,8 @@ export async function saveContentSection(_prev: FormState, formData: FormData): 
 /** Rétablit les textes et images par défaut d'une section. */
 export async function resetContentSection(sectionId: string): Promise<FormState> {
   await requireAdmin();
+  const blocked = readOnlyOnline();
+  if (blocked) return blocked;
   const section = CONTENT_SECTIONS.find((s) => s.id === sectionId);
   if (!section) return { ok: false, message: "Section inconnue." };
   await saveContent(Object.fromEntries(Object.entries(section.fields).map(([k, f]) => [k, f.default])));
@@ -53,6 +74,8 @@ export async function resetContentSection(sectionId: string): Promise<FormState>
 
 export async function uploadMedia(_prev: FormState, formData: FormData): Promise<FormState> {
   await requireAdmin();
+  const blocked = readOnlyOnline();
+  if (blocked) return blocked;
   const files = formData.getAll("files").map(uploadedFile).filter((f): f is File => f !== null);
   if (files.length === 0) return { ok: false, message: "Choisis au moins une image." };
 
@@ -69,6 +92,8 @@ export async function uploadMedia(_prev: FormState, formData: FormData): Promise
 
 export async function removeMedia(name: string): Promise<FormState> {
   await requireAdmin();
+  const blocked = readOnlyOnline();
+  if (blocked) return blocked;
   const usage = mediaUsage(await getContent(), MEDIA_URL_PREFIX + name);
   if (usage.length > 0) {
     return { ok: false, message: `Utilisée par : ${usage.map((u) => u.label).join(", ")}.` };

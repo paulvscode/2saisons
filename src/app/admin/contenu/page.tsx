@@ -18,6 +18,12 @@ export default async function AdminContentPage() {
         <h1>Contenu du site</h1>
       </div>
 
+      {process.env.VERCEL && (
+        <p className="alert alert--err" role="status" style={{ marginBottom: "var(--space-m)" }}>
+          Lecture seule sur le site en ligne : modifie les textes et images sur ta version locale
+          (localhost), puis publie avec un push.
+        </p>
+      )}
       <p className="muted" style={{ maxWidth: "60ch" }}>
         Textes et images des pages publiques. Chaque section s'enregistre séparément. Les images
         viennent de la <Link href="/admin/medias">médiathèque</Link> ou peuvent être téléversées

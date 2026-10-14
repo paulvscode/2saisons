@@ -11,5 +11,7 @@
   "site.rna": "W000000000",
   "site.siren": "000 000 000",
   "site.siret": "000 000 000 00000",
-  "site.host": "[Nom de l'hébergeur], [adresse de l'hébergeur], [téléphone]."
+  "site.host": "[Nom de l'hébergeur], [adresse de l'hébergeur], [téléphone].",
+  "site.logo": "/media/log-2-aabf2d.svg",
+  "site.logoAlign": "left"
 }

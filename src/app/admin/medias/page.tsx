@@ -20,6 +20,12 @@ export default async function AdminMediaPage() {
         <h1>Médiathèque</h1>
       </div>
 
+      {process.env.VERCEL && (
+        <p className="alert alert--err" role="status" style={{ marginBottom: "var(--space-m)" }}>
+          Lecture seule sur le site en ligne : ajoute ou supprime les images sur ta version locale
+          (localhost), puis publie avec un push.
+        </p>
+      )}
       <section className="card">
         <h2 className="h-m" style={{ marginBottom: "1rem" }}>
           Ajouter des images

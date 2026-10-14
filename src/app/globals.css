@@ -218,18 +218,19 @@ h3 {
   line-height: 1.05;
   white-space: nowrap;
 }
+/* Logo : même encombrement que le nom en texte, sans dépasser la hauteur de l'en-tête (64 px). */
 .brand__logo {
   display: block;
-  height: 44px;
+  height: 54px;
   width: auto;
-  max-width: 200px;
+  max-width: 220px;
   object-fit: contain;
   object-position: left center;
 }
 @media (max-width: 420px) {
   .brand__logo {
-    height: 36px;
-    max-width: 160px;
+    height: 46px;
+    max-width: 180px;
   }
 }
 .brand span {
@@ -335,6 +336,41 @@ h3 {
 @media (min-width: 1101px) {
   .nav__toggle {
     display: none;
+  }
+}
+
+/* Logo centré (réglage « Alignement du logo » dans /admin/contenu). */
+@media (max-width: 1100px) {
+  /* Mobile et tablette : logo au centre de l'en-tête, menu burger à droite. */
+  html[data-logo-align="center"] .site-header__inner {
+    position: relative;
+    justify-content: flex-end;
+  }
+  html[data-logo-align="center"] .brand {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    text-align: center;
+  }
+  html[data-logo-align="center"] .brand__logo {
+    object-position: center;
+  }
+}
+@media (min-width: 1101px) {
+  /* Ordinateur : logo centré sur sa ligne, menu centré en dessous. */
+  html[data-logo-align="center"] {
+    --header-h: 128px;
+  }
+  html[data-logo-align="center"] .site-header__inner {
+    flex-direction: column;
+    justify-content: center;
+    gap: 0.6rem;
+  }
+  html[data-logo-align="center"] .brand {
+    text-align: center;
+  }
+  html[data-logo-align="center"] .brand__logo {
+    object-position: center;
   }
 }
 
