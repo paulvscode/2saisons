@@ -963,6 +963,10 @@ h3 {
   grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr));
   margin-bottom: var(--space-l);
 }
+/* Dans une grille, l'espacement vient du gap : pas de marge entre cartes (elles seraient décalées). */
+.stat-grid .card + .card {
+  margin-top: 0;
+}
 
 .status-banner {
   border: 2px solid var(--fg);
@@ -1813,9 +1817,6 @@ li[data-correct="true"] .answer-bar__fill {
     font-size: 0.7rem;
     letter-spacing: 0.06em;
     overflow-wrap: break-word;
-  }
-  .stat-grid .card + .card {
-    margin-top: 0;
   }
   .card__value {
     font-size: var(--step-1);
