@@ -234,3 +234,19 @@ model QuizSubmission {
   @@index([quizId, score])
   @@map("quiz_submissions")
 }
+
+// ---------- Images stockées en base ----------
+
+// Images des quiz (couverture, questions), redimensionnées et compressées en WebP.
+// Stockées dans Postgres tant que le trafic est faible (Vercel Blob en pause) ;
+// servies par /api/images/[id].
+model StoredImage {
+  id        String   @id @default(cuid())
+  data      Bytes
+  mime      String
+  width     Int
+  height    Int
+  createdAt DateTime @default(now())
+
+  @@map("stored_images")
+}
