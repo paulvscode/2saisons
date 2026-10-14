@@ -21,6 +21,27 @@ export async function getClientIpHash() {
   return hashIp(await getClientIp());
 }
 
+/* ---------- Minuterie ---------- */
+
+const secret = () => process.env.AUTH_SECRET ?? "dev-secret";
+
+/** Jeton signé « quiz démarré à t » : la durée réelle est contrôlée à l'envoi des réponses. */
+export function signQuizStart(quizId: string, startedAt = Date.now()) {
+  const sig = createHmac("sha256", secret()).update(`quiz-start:${quizId}:${startedAt}`).digest("hex");
+  return `${startedAt}.${sig}`;
+}
+
+/** Durée écoulée (ms) depuis le démarrage, ou null si le jeton est absent ou falsifié. */
+export function elapsedSinceStart(quizId: string, token: string | undefined) {
+  const startedAt = Number(token?.split(".")[0]);
+  if (!token || !Number.isFinite(startedAt) || signQuizStart(quizId, startedAt) !== token) return null;
+  return Date.now() - startedAt;
+}
+
+/** Temps accordé : minuterie × questions, plus la saisie du pseudo et une marge réseau. */
+export const allowedDurationMs = (timePerQuestion: number, questions: number) =>
+  (timePerQuestion * questions + 180 + questions * 3) * 1000;
+
 /** Quiz affiché sur /quiz (un seul publié à la fois), questions et réponses dans l'ordre. */
 export function getActiveQuiz() {
   return prisma.quiz.findFirst({

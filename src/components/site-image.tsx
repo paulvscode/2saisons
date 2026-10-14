@@ -30,7 +30,7 @@ export function SiteImage({
   }
   return (
     <div className={`media ph--${ratio}`}>
-      <Image src={src} alt={alt} fill sizes={sizes} priority={priority} />
+      <Image src={src} alt={alt} fill sizes={sizes} priority={priority} unoptimized={src.endsWith(".svg")} />
       {credit && <small className="media__credit">{credit}</small>}
     </div>
   );

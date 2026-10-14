@@ -12,11 +12,13 @@ export function SectionForm({
   values,
   media,
   accept,
+  acceptVector,
 }: {
   section: ContentSection;
   values: SiteContent;
   media: string[];
   accept: string;
+  acceptVector: string;
 }) {
   const [state, action] = useActionState<FormState, FormData>(saveContentSection, {});
 
@@ -33,7 +35,7 @@ export function SectionForm({
             hint={field.hint}
             defaultValue={values[key]}
             media={media}
-            accept={accept}
+            accept={field.vector ? acceptVector : accept}
           />
         ) : (
           <Field

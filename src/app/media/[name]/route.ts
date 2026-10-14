@@ -15,6 +15,10 @@ export async function GET(_req: Request, { params }: { params: Promise<{ name: s
         "Content-Type": MEDIA_MIME[extname(name).slice(1)],
         // Les noms téléversés sont uniques (suffixe aléatoire) : le contenu ne change jamais.
         "Cache-Control": "public, max-age=31536000, immutable",
+        // SVG ouvert directement : aucun script ni ressource externe.
+        ...(name.endsWith(".svg")
+          ? { "Content-Security-Policy": "default-src 'none'; style-src 'unsafe-inline'; img-src data:", "X-Content-Type-Options": "nosniff" }
+          : {}),
       },
     });
   } catch {

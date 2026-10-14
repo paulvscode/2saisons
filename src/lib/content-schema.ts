@@ -12,6 +12,8 @@ export type ContentField = {
   type: ContentFieldType;
   default: string;
   hint?: string;
+  /** Image : accepte aussi les fichiers Illustrator (.ai), convertis en SVG + PNG. */
+  vector?: boolean;
 };
 
 export type ContentSection = {
@@ -80,6 +82,14 @@ export const CONTENT_SECTIONS: ContentSection[] = [
     title: "Informations générales",
     href: "/mentions-legales",
     fields: {
+      "site.logo": {
+        ...image(
+          "Logo",
+          "",
+          "Remplace « Deux saisons de planche » dans l'en-tête et sert d'icône d'onglet (favicon). Fichier Illustrator (.ai, compatible PDF) ou PNG à fond transparent. Vide = nom en texte.",
+        ),
+        vector: true,
+      },
       "site.email": text("E-mail de contact", "contact@deuxsaisonsdeplanche.fr"),
       "site.address": text("Siège social", "00 rue de l'Exemple, 00000 Ville"),
       "site.rna": text("Numéro RNA", "W000000000"),

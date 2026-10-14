@@ -1,7 +1,10 @@
 import "server-only";
-import { mkdir, readFile, readdir, rename, stat, unlink, writeFile } from "node:fs/promises";
+import { access, mkdir, mkdtemp, readFile, readdir, rename, rm, stat, unlink, writeFile } from "node:fs/promises";
 import { join } from "node:path";
+import { tmpdir } from "node:os";
 import { randomBytes } from "node:crypto";
+import { execFile } from "node:child_process";
+import { promisify } from "node:util";
 import { CONTENT_FIELDS, CONTENT_SECTIONS, type SiteContent } from "./content-schema";
 
 /**
@@ -24,6 +27,7 @@ const IMAGE_TYPES: Record<string, string> = {
   "image/avif": "avif",
 };
 export const MEDIA_MIME: Record<string, string> = {
+  svg: "image/svg+xml", // uniquement produit par la conversion des fichiers Illustrator
   jpg: "image/jpeg",
   jpeg: "image/jpeg",
   png: "image/png",
@@ -32,11 +36,19 @@ export const MEDIA_MIME: Record<string, string> = {
   avif: "image/avif",
 };
 export const MEDIA_ACCEPT = Object.keys(IMAGE_TYPES).join(",");
+/** Champs vectoriels (logo) : accepte aussi les fichiers Adobe Illustrator. */
+export const MEDIA_ACCEPT_VECTOR = `${MEDIA_ACCEPT},.ai,application/postscript,application/illustrator,application/pdf`;
+
+const AI_MAX_BYTES = 30 * 1024 * 1024; // 30 Mo
+const execFileAsync = promisify(execFile);
 
 /** Nom de fichier média sûr (pas de chemin, extension image connue). */
 export function isMediaName(name: string) {
-  return /^[a-z0-9][a-z0-9-]*\.(jpe?g|png|webp|gif|avif)$/.test(name);
+  return /^[a-z0-9][a-z0-9-]*\.(jpe?g|png|webp|gif|avif|svg)$/.test(name);
 }
+
+/** Favicon PNG produit à côté d'un logo SVG converti depuis Illustrator. */
+export const faviconPngFor = (svgUrl: string) => svgUrl.replace(/\.svg$/, ".png");
 
 /* ---------- Textes ---------- */
 
@@ -103,8 +115,57 @@ function slugify(filename: string) {
   );
 }
 
+/** pdftocairo (poppler) : dans le PATH, sinon emplacements Homebrew habituels. */
+async function pdftocairo(args: string[]) {
+  const candidates = ["pdftocairo", "/opt/homebrew/bin/pdftocairo", "/usr/local/bin/pdftocairo"];
+  for (const bin of candidates) {
+    try {
+      return await execFileAsync(bin, args, { timeout: 60_000 });
+    } catch (e) {
+      if ((e as NodeJS.ErrnoException).code !== "ENOENT") throw e;
+    }
+  }
+  throw new Error(
+    "Conversion impossible : l'outil pdftocairo est absent. Installe-le avec « brew install poppler ».",
+  );
+}
+
+/**
+ * Fichier Adobe Illustrator (.ai) : enregistré en SVG (logo net à toute taille) et en PNG
+ * transparent 512 px (favicon). Nécessite un .ai « compatible PDF » (option par défaut d'Illustrator).
+ */
+async function storeIllustrator(file: File): Promise<string> {
+  if (file.size > AI_MAX_BYTES) throw new Error(`« ${file.name} » : 30 Mo maximum.`);
+  const data = Buffer.from(await file.arrayBuffer());
+  if (data.subarray(0, 5).toString("latin1") !== "%PDF-") {
+    throw new Error(
+      `« ${file.name} » n'est pas compatible PDF. Dans Illustrator : Fichier › Enregistrer sous… › cocher « Créer un fichier compatible PDF ».`,
+    );
+  }
+
+  const base = `${slugify(file.name)}-${randomBytes(3).toString("hex")}`;
+  const work = await mkdtemp(join(tmpdir(), "2sdp-ai-"));
+  try {
+    const src = join(work, "source.pdf");
+    await writeFile(src, data);
+    await mkdir(MEDIA_DIR, { recursive: true });
+    // Première planche de travail uniquement.
+    await pdftocairo(["-svg", "-f", "1", "-l", "1", src, join(MEDIA_DIR, `${base}.svg`)]);
+    await pdftocairo(["-png", "-singlefile", "-transp", "-scale-to", "512", "-f", "1", "-l", "1", src, join(MEDIA_DIR, base)]);
+  } catch (e) {
+    await rm(join(MEDIA_DIR, `${base}.svg`), { force: true });
+    await rm(join(MEDIA_DIR, `${base}.png`), { force: true });
+    if (e instanceof Error && e.message.startsWith("Conversion impossible")) throw e;
+    throw new Error(`« ${file.name} » : conversion du fichier Illustrator impossible.`);
+  } finally {
+    await rm(work, { recursive: true, force: true });
+  }
+  return `${MEDIA_URL_PREFIX}${base}.svg`;
+}
+
 /** Enregistre une image dans content/media et renvoie son URL publique (/media/…). */
 export async function storeMedia(file: File): Promise<string> {
+  if (/\.ai$/i.test(file.name)) return storeIllustrator(file);
   const ext = IMAGE_TYPES[file.type];
   if (!ext) throw new Error(`« ${file.name} » : format accepté JPEG, PNG, WebP, GIF ou AVIF.`);
   if (file.size > MAX_BYTES) throw new Error(`« ${file.name} » : 8 Mo maximum.`);
@@ -120,11 +181,27 @@ export async function deleteMedia(name: string) {
   await unlink(join(MEDIA_DIR, name));
 }
 
-/** Emplacements du site qui utilisent une image donnée. */
+/** Le PNG de favicon existe-t-il à côté de ce logo SVG ? */
+export async function hasFaviconPng(svgUrl: string) {
+  if (!svgUrl.endsWith(".svg")) return false;
+  try {
+    await access(join(MEDIA_DIR, faviconPngFor(svgUrl).slice(MEDIA_URL_PREFIX.length)));
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+/** Emplacements du site qui utilisent une image donnée (y compris comme favicon d'un logo SVG). */
 export function mediaUsage(content: SiteContent, url: string) {
   return CONTENT_SECTIONS.flatMap((s) =>
-    Object.entries(s.fields)
-      .filter(([key, f]) => f.type === "image" && content[key] === url)
-      .map(([key, f]) => ({ key, label: `${s.title} › ${f.label}` })),
+    Object.entries(s.fields).flatMap(([key, f]) => {
+      if (f.type !== "image" || !content[key]) return [];
+      if (content[key] === url) return [{ key, label: `${s.title} › ${f.label}` }];
+      if (content[key].endsWith(".svg") && faviconPngFor(content[key]) === url) {
+        return [{ key, label: `${s.title} › ${f.label} (favicon)` }];
+      }
+      return [];
+    }),
   );
 }

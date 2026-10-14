@@ -7,6 +7,8 @@ import type { Role } from "@prisma/client";
 
 type Props = {
   user: { firstname: string; role: Role } | null;
+  /** Logo choisi dans l'admin ; à défaut, le nom de l'association en texte. */
+  logo?: string;
 };
 
 /** Navigation principale — 5 liens publics + 1 accès espace personnel. */
@@ -19,7 +21,7 @@ const LINKS = [
   { href: "/adhesion", label: "À propos & Adhésion" },
 ];
 
-export function SiteHeader({ user }: Props) {
+export function SiteHeader({ user, logo }: Props) {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
 
@@ -51,7 +53,14 @@ export function SiteHeader({ user }: Props) {
     <header className="site-header">
       <div className="site-header__inner">
         <Link className="brand" href="/">
-          Deux saisons<span>de planche</span>
+          {logo ? (
+            // eslint-disable-next-line @next/next/no-img-element -- dimensions du logo inconnues
+            <img className="brand__logo" src={logo} alt="Deux saisons de planche" />
+          ) : (
+            <>
+              Deux saisons<span>de planche</span>
+            </>
+          )}
         </Link>
 
         <nav

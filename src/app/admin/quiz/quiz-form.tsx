@@ -5,6 +5,7 @@ import type { Quiz } from "@prisma/client";
 import type { FormState } from "@/lib/action-types";
 import { Field, FormAlert, SubmitButton } from "@/components/ui";
 import { saveQuiz } from "./actions";
+import { ImageField } from "./image-field";
 
 export function QuizForm({ quiz }: { quiz?: Quiz }) {
   const [state, action] = useActionState<FormState, FormData>(saveQuiz, {});
@@ -19,6 +20,17 @@ export function QuizForm({ quiz }: { quiz?: Quiz }) {
         textarea
         defaultValue={quiz?.description ?? ""}
         hint="Facultatif. Affichée sous le titre sur /quiz."
+      />
+      <ImageField id={`quiz-image-${quiz?.id ?? "new"}`} label="Image du quiz" current={quiz?.imageUrl} />
+      <Field
+        label="Minuterie : secondes par question"
+        name="timePerQuestion"
+        type="number"
+        min={5}
+        step={1}
+        defaultValue={quiz?.timePerQuestion ?? ""}
+        error={state.errors?.timePerQuestion}
+        hint="Vide = pas de limite. À zéro, on passe à la question suivante ; une question sans réponse compte comme fausse."
       />
       <label className="form__consent">
         <input type="checkbox" name="published" defaultChecked={quiz?.published ?? false} />

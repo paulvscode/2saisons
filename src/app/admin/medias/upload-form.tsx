@@ -13,7 +13,10 @@ export function UploadForm({ accept }: { accept: string }) {
       <div className="field">
         <label htmlFor="media-files">Images</label>
         <input id="media-files" type="file" name="files" accept={accept} multiple required />
-        <p className="field__hint">JPEG, PNG, WebP, GIF ou AVIF — 8 Mo maximum par image.</p>
+        <p className="field__hint">
+          JPEG, PNG, WebP, GIF ou AVIF (8 Mo maximum par image), ou Illustrator .ai compatible PDF
+          (30 Mo), converti en SVG + PNG.
+        </p>
       </div>
       <FormAlert state={state} />
       <SubmitButton pendingLabel="Téléversement…" className="btn btn--sm">

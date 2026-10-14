@@ -4,6 +4,7 @@ import { useActionState, useState } from "react";
 import type { FormState } from "@/lib/action-types";
 import { FormAlert, SubmitButton } from "@/components/ui";
 import { saveQuestion } from "./actions";
+import { ImageField } from "./image-field";
 
 type AnswerRow = { key: number; text: string; isCorrect: boolean };
 
@@ -15,7 +16,12 @@ export function QuestionForm({
   question,
 }: {
   quizId: string;
-  question?: { id: string; text: string; answers: { text: string; isCorrect: boolean }[] };
+  question?: {
+    id: string;
+    text: string;
+    imageUrl?: string | null;
+    answers: { text: string; isCorrect: boolean }[];
+  };
 }) {
   const [rows, setRows] = useState<AnswerRow[]>(() =>
     question ? question.answers.map((a) => row(a.text, a.isCorrect)) : [row(), row()],
@@ -36,6 +42,7 @@ export function QuestionForm({
         <label htmlFor={`q-${prefix}`}>Question *</label>
         <textarea id={`q-${prefix}`} name="text" required maxLength={500} defaultValue={question?.text} />
       </div>
+      <ImageField id={`q-image-${prefix}`} label="Image de la question" current={question?.imageUrl} />
 
       <fieldset className="quiz-answers-edit">
         <legend>Réponses (coche la ou les bonnes réponses)</legend>

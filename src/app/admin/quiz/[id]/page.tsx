@@ -69,6 +69,10 @@ export default async function AdminQuizPage({ params }: { params: Promise<{ id: 
           <p className="card__value">{subs.length}</p>
         </div>
         <div className="card">
+          <p className="card__label">Minuterie</p>
+          <p className="card__value">{quiz.timePerQuestion ? `${quiz.timePerQuestion} s` : "Aucune"}</p>
+        </div>
+        <div className="card">
           <p className="card__label">Score moyen</p>
           <p className="card__value">{subs.length ? average.toFixed(1).replace(".", ",") : "–"}</p>
         </div>
@@ -78,7 +82,7 @@ export default async function AdminQuizPage({ params }: { params: Promise<{ id: 
         <h2 className="h-m" style={{ marginBottom: "1rem" }}>
           Réglages
         </h2>
-        <Disclosure label="Modifier le titre, la description ou la publication">
+        <Disclosure label="Modifier le titre, la description, l'image, la minuterie ou la publication">
           <QuizForm quiz={quiz} />
         </Disclosure>
       </section>
@@ -108,6 +112,7 @@ export default async function AdminQuizPage({ params }: { params: Promise<{ id: 
                   </p>
                   {rate !== null && <span className="badge badge--muted">{rate} % de réussite</span>}
                 </div>
+                {q.imageUrl && <img className="quiz-admin-list__img" src={q.imageUrl} alt="" loading="lazy" />}
                 <ul className="quiz-admin-list__answers">
                   {q.answers.map((a) => {
                     const count = detailed.filter((r) => r.chosen!.some((c) => c.id === a.id)).length;
@@ -137,6 +142,7 @@ export default async function AdminQuizPage({ params }: { params: Promise<{ id: 
                       question={{
                         id: q.id,
                         text: q.text,
+                        imageUrl: q.imageUrl,
                         answers: q.answers.map((a) => ({ text: a.text, isCorrect: a.isCorrect })),
                       }}
                     />

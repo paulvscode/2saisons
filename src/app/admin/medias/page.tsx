@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { getContent, listMedia, mediaUsage, MEDIA_ACCEPT } from "@/lib/content";
+import { getContent, listMedia, mediaUsage, MEDIA_ACCEPT_VECTOR } from "@/lib/content";
 import { ActionButton } from "@/components/action-button";
 import { removeMedia } from "../contenu/actions";
 import { UploadForm } from "./upload-form";
@@ -24,7 +24,7 @@ export default async function AdminMediaPage() {
         <h2 className="h-m" style={{ marginBottom: "1rem" }}>
           Ajouter des images
         </h2>
-        <UploadForm accept={MEDIA_ACCEPT} />
+        <UploadForm accept={MEDIA_ACCEPT_VECTOR} />
       </section>
 
       {media.length === 0 ? (

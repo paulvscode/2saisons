@@ -23,6 +23,7 @@ export function ImagePicker({
 }) {
   const [value, setValue] = useState(defaultValue);
   const [preview, setPreview] = useState<string | null>(null);
+  const [isIllustrator, setIsIllustrator] = useState(false);
   const options = value && !media.includes(value) ? [value, ...media] : media;
   const id = `f-${name}`;
 
@@ -35,7 +36,13 @@ export function ImagePicker({
       <label htmlFor={id}>{label}</label>
       <div className="image-picker__row">
         <div className="image-picker__thumb">
-          {shown ? <img src={shown} alt="" /> : <span>Aucune image</span>}
+          {isIllustrator ? (
+            <span>Fichier .ai : aperçu après enregistrement</span>
+          ) : shown ? (
+            <img src={shown} alt="" />
+          ) : (
+            <span>Aucune image</span>
+          )}
         </div>
         <div className="image-picker__controls">
           <select
@@ -59,11 +66,16 @@ export function ImagePicker({
             aria-label={`${label} — téléverser une nouvelle image`}
             onChange={(e) => {
               const file = e.target.files?.[0];
+              setIsIllustrator(Boolean(file && /\.ai$/i.test(file.name)));
               setPreview(file ? URL.createObjectURL(file) : null);
             }}
           />
           <p className="field__hint">
-            {preview ? "Nouvelle image : elle sera ajoutée à la médiathèque à l'enregistrement." : hint}
+            {isIllustrator
+              ? "Fichier Illustrator : converti en SVG (logo) et PNG (favicon) à l'enregistrement."
+              : preview
+                ? "Nouvelle image : elle sera ajoutée à la médiathèque à l'enregistrement."
+                : hint}
           </p>
         </div>
       </div>

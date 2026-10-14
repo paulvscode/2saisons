@@ -27,7 +27,7 @@ enum MembershipStatus {
 
 enum DocumentType {
   medical_certificate // certificat médical
-  insurance           // attestation d'assurance
+  insurance // attestation d'assurance
 }
 
 enum DocumentStatus {
@@ -178,12 +178,14 @@ model Task {
 // ---------- Quiz ----------
 
 model Quiz {
-  id          String   @id @default(cuid())
-  title       String
-  description String?
-  published   Boolean  @default(false) // un seul quiz publié à la fois, affiché sur /quiz
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id              String   @id @default(cuid())
+  title           String
+  description     String?
+  imageUrl        String? // image d'en-tête du quiz (Vercel Blob en prod, /media/… en local)
+  timePerQuestion Int? // minuterie en secondes par question ; null = pas de limite
+  published       Boolean  @default(false) // un seul quiz publié à la fois, affiché sur /quiz
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
 
   questions   QuizQuestion[]
   submissions QuizSubmission[]
@@ -196,6 +198,7 @@ model QuizQuestion {
   quizId   String
   quiz     Quiz         @relation(fields: [quizId], references: [id], onDelete: Cascade)
   text     String
+  imageUrl String? // image facultative affichée avec la question
   position Int          @default(0)
   answers  QuizAnswer[]
 

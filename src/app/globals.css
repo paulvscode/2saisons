@@ -218,6 +218,20 @@ h3 {
   line-height: 1.05;
   white-space: nowrap;
 }
+.brand__logo {
+  display: block;
+  height: 44px;
+  width: auto;
+  max-width: 200px;
+  object-fit: contain;
+  object-position: left center;
+}
+@media (max-width: 420px) {
+  .brand__logo {
+    height: 36px;
+    max-width: 160px;
+  }
+}
 .brand span {
   display: block;
   font-size: 0.7em;
@@ -1323,6 +1337,8 @@ table.data tr:last-child td {
 }
 .image-picker__thumb {
   flex: 0 0 9rem;
+  padding: 0.25rem;
+  text-align: center;
   aspect-ratio: 4 / 3;
   border: 1px solid var(--line);
   background: var(--grey-100);
@@ -1868,5 +1884,65 @@ li[data-correct="true"] .answer-bar__fill {
   }
   .quiz__nav .btn {
     flex: 1 1 auto;
+  }
+}
+
+/* ---------- Quiz : images et minuterie ---------- */
+.quiz__cover {
+  display: block;
+  width: 100%;
+  max-height: 28rem;
+  object-fit: cover;
+  margin-top: var(--space-m);
+  border: 1px solid var(--line);
+}
+.quiz__img {
+  display: block;
+  width: 100%;
+  max-height: 22rem;
+  object-fit: contain;
+  background: var(--grey-100);
+  margin-bottom: var(--space-s);
+}
+.quiz__meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: var(--space-s);
+}
+.quiz__timer {
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+.quiz__timer[data-urgent="true"] {
+  color: var(--err);
+}
+.quiz__timebar {
+  display: block;
+  height: 3px;
+  background: var(--line);
+}
+.quiz__timebar span {
+  display: block;
+  height: 100%;
+  background: var(--fg);
+  transition: width 0.25s linear;
+}
+.quiz__intro {
+  display: grid;
+  gap: var(--space-s);
+}
+.quiz-admin-list__img {
+  display: block;
+  max-width: 14rem;
+  max-height: 9rem;
+  object-fit: cover;
+  margin-top: var(--space-xs);
+  border: 1px solid var(--line);
+}
+@media (max-width: 480px) {
+  /* Mobile : les réponses doivent rester visibles pendant que la minuterie tourne. */
+  .quiz__img {
+    max-height: 12rem;
   }
 }

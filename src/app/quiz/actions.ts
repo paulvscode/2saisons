@@ -4,11 +4,24 @@ import { revalidatePath } from "next/cache";
 import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { validatePlayerName } from "@/lib/moderation";
-import { getClientIp, getRank, hashIp, type QuizResult } from "@/lib/quiz";
+import {
+  allowedDurationMs,
+  elapsedSinceStart,
+  getClientIp,
+  getRank,
+  hashIp,
+  signQuizStart,
+  type QuizResult,
+} from "@/lib/quiz";
 
 export type SubmitQuizResult =
   | { ok: true; score: number; total: number; rank: number }
   | { ok: false; message: string; field?: "name" };
+
+/** Démarre un quiz minuté : renvoie le jeton signé à renvoyer avec les réponses. */
+export async function startQuiz(quizId: string): Promise<string> {
+  return signQuizStart(quizId);
+}
 
 /**
  * Corrige le quiz côté serveur (les bonnes réponses ne sont jamais envoyées au navigateur)
@@ -18,6 +31,8 @@ export async function submitQuiz(input: {
   quizId: string;
   name: string;
   answers: Record<string, string[]>;
+  /** Jeton de startQuiz, obligatoire si le quiz est minuté. */
+  startToken?: string;
 }): Promise<SubmitQuizResult> {
   const nameError = validatePlayerName(input.name ?? "");
   if (nameError) return { ok: false, message: nameError, field: "name" };
@@ -56,7 +71,15 @@ export async function submitQuiz(input: {
         expected: expected.map(pick),
       };
     });
-  if (quiz.questions.some((q) => (input.answers?.[q.id] ?? []).length === 0)) {
+  if (quiz.timePerQuestion) {
+    // Quiz minuté : une question sans réponse (temps écoulé) compte comme fausse,
+    // mais la durée totale est contrôlée ici (la minuterie du navigateur est contournable).
+    const elapsed = elapsedSinceStart(quiz.id, input.startToken);
+    if (elapsed === null) return { ok: false, message: "Session de quiz invalide : recharge la page." };
+    if (elapsed > allowedDurationMs(quiz.timePerQuestion, quiz.questions.length)) {
+      return { ok: false, message: "Temps dépassé : tes réponses n'ont pas pu être prises en compte." };
+    }
+  } else if (quiz.questions.some((q) => (input.answers?.[q.id] ?? []).length === 0)) {
     return { ok: false, message: "Réponds à toutes les questions avant de valider." };
   }
   const score = results.filter((r) => r.correct).length;

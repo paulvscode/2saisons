@@ -6,6 +6,7 @@ import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "@/lib/auth";
 import type { FormState } from "@/lib/action-types";
+import { discardQuizImage, formImage, storeQuizImage } from "@/lib/quiz-media";
 
 function revalidateQuiz(quizId?: string) {
   revalidatePath("/admin/quiz");
@@ -23,7 +24,28 @@ const quizSchema = z.object({
     .max(1000)
     .transform((v) => v || null),
   published: z.boolean(),
+  timePerQuestion: z
+    .union([z.literal(""), z.coerce.number().int("Nombre entier de secondes").min(5, "5 secondes minimum").max(600, "600 secondes maximum")])
+    .transform((v) => (v === "" ? null : v)),
 });
+
+/**
+ * Image d'un formulaire : nouveau fichier, case « retirer l'image », ou inchangée.
+ * Renvoie undefined si rien ne change (Prisma ignore alors le champ).
+ */
+async function imageFromForm(formData: FormData, current: string | null | undefined) {
+  const file = formImage(formData.get("image"));
+  if (file) {
+    const url = await storeQuizImage(file);
+    await discardQuizImage(current);
+    return url;
+  }
+  if (formData.get("removeImage") === "on") {
+    await discardQuizImage(current);
+    return null;
+  }
+  return undefined;
+}
 
 /** Crée ou met à jour un quiz. Publier un quiz retire les autres de /quiz. */
 export async function saveQuiz(_prev: FormState, formData: FormData): Promise<FormState> {
@@ -33,18 +55,27 @@ export async function saveQuiz(_prev: FormState, formData: FormData): Promise<Fo
     title: formData.get("title") ?? "",
     description: formData.get("description") ?? "",
     published: formData.get("published") === "on",
+    timePerQuestion: formData.get("timePerQuestion")?.toString().trim() ?? "",
   });
   if (!parsed.success) {
-    return { ok: false, message: "Formulaire invalide.", errors: { title: parsed.error.issues[0]?.message } };
+    const errors = Object.fromEntries(parsed.error.issues.map((i) => [String(i.path[0]), i.message]));
+    return { ok: false, message: "Formulaire invalide.", errors };
   }
+
+  let imageUrl: string | null | undefined;
+  try {
+    const current = id ? (await prisma.quiz.findUnique({ where: { id } }))?.imageUrl : null;
+    imageUrl = await imageFromForm(formData, current);
+  } catch (e) {
+    return { ok: false, message: e instanceof Error ? e.message : "Image refusée." };
+  }
+  const data = { ...parsed.data, imageUrl };
 
   const quiz = await prisma.$transaction(async (tx) => {
     if (parsed.data.published) {
       await tx.quiz.updateMany({ where: { published: true, NOT: id ? { id } : undefined }, data: { published: false } });
     }
-    return id
-      ? tx.quiz.update({ where: { id }, data: parsed.data })
-      : tx.quiz.create({ data: parsed.data });
+    return id ? tx.quiz.update({ where: { id }, data }) : tx.quiz.create({ data });
   });
 
   revalidateQuiz(quiz.id);
@@ -54,7 +85,8 @@ export async function saveQuiz(_prev: FormState, formData: FormData): Promise<Fo
 
 export async function deleteQuiz(id: string): Promise<FormState> {
   await requireAdmin();
-  await prisma.quiz.delete({ where: { id } });
+  const quiz = await prisma.quiz.delete({ where: { id }, include: { questions: true } });
+  await Promise.all([quiz.imageUrl, ...quiz.questions.map((q) => q.imageUrl)].map(discardQuizImage));
   revalidateQuiz();
   redirect("/admin/quiz");
 }
@@ -87,16 +119,24 @@ export async function saveQuestion(_prev: FormState, formData: FormData): Promis
   if (answers.some((a) => a.text.length > 300)) return { ok: false, message: "Réponse trop longue (300 caractères max)." };
   if (!answers.some((a) => a.isCorrect)) return { ok: false, message: "Coche au moins une bonne réponse." };
 
+  let imageUrl: string | null | undefined;
+  try {
+    const current = id ? (await prisma.quizQuestion.findUnique({ where: { id } }))?.imageUrl : null;
+    imageUrl = await imageFromForm(formData, current);
+  } catch (e) {
+    return { ok: false, message: e instanceof Error ? e.message : "Image refusée." };
+  }
+
   const answerRows = answers.map((a, position) => ({ ...a, position }));
   if (id) {
     await prisma.$transaction([
       prisma.quizAnswer.deleteMany({ where: { questionId: id } }),
-      prisma.quizQuestion.update({ where: { id }, data: { text, answers: { create: answerRows } } }),
+      prisma.quizQuestion.update({ where: { id }, data: { text, imageUrl, answers: { create: answerRows } } }),
     ]);
   } else {
     const last = await prisma.quizQuestion.findFirst({ where: { quizId }, orderBy: { position: "desc" } });
     await prisma.quizQuestion.create({
-      data: { quizId, text, position: (last?.position ?? -1) + 1, answers: { create: answerRows } },
+      data: { quizId, text, imageUrl, position: (last?.position ?? -1) + 1, answers: { create: answerRows } },
     });
   }
 
@@ -107,6 +147,7 @@ export async function saveQuestion(_prev: FormState, formData: FormData): Promis
 export async function deleteQuestion(id: string): Promise<FormState> {
   await requireAdmin();
   const q = await prisma.quizQuestion.delete({ where: { id } });
+  await discardQuizImage(q.imageUrl);
   revalidateQuiz(q.quizId);
   return { ok: true };
 }

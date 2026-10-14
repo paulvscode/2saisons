@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { getContent, listMedia, MEDIA_ACCEPT } from "@/lib/content";
+import { getContent, listMedia, MEDIA_ACCEPT, MEDIA_ACCEPT_VECTOR } from "@/lib/content";
 import { CONTENT_SECTIONS } from "@/lib/content-schema";
 import { ActionButton } from "@/components/action-button";
 import { resetContentSection } from "./actions";
@@ -50,7 +50,13 @@ export default async function AdminContentPage() {
               </ActionButton>
             </div>
           </div>
-          <SectionForm section={section} values={values} media={mediaUrls} accept={MEDIA_ACCEPT} />
+          <SectionForm
+            section={section}
+            values={values}
+            media={mediaUrls}
+            accept={MEDIA_ACCEPT}
+            acceptVector={MEDIA_ACCEPT_VECTOR}
+          />
         </section>
       ))}
     </>

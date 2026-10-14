@@ -44,6 +44,7 @@ export default async function QuizPage() {
             {quiz.description}
           </p>
         )}
+        {quiz.imageUrl && <img className="quiz__cover" src={quiz.imageUrl} alt="" />}
       </section>
 
       <section className="section section--tight wrap">
@@ -62,9 +63,11 @@ export default async function QuizPage() {
         ) : (
           <QuizPlayer
             quizId={quiz.id}
+            timePerQuestion={quiz.timePerQuestion}
             questions={quiz.questions.map((q) => ({
               id: q.id,
               text: q.text,
+              imageUrl: q.imageUrl,
               multiple: q.answers.filter((a) => a.isCorrect).length > 1,
               // Jamais isCorrect côté navigateur : la correction se fait sur le serveur.
               answers: q.answers.map((a) => ({ id: a.id, text: a.text })),
