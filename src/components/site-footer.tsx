@@ -30,10 +30,13 @@ export async function SiteFooter() {
                 <Link href="/mission">Mission</Link>
               </li>
               <li>
-                <Link href="/evenements">Événements &amp; Spots</Link>
+                <Link href="/evenements">Événements</Link>
               </li>
               <li>
                 <Link href="/liens">Liens</Link>
+              </li>
+              <li>
+                <Link href="/quiz">Quiz</Link>
               </li>
               <li>
                 <Link href="/adhesion">À propos &amp; Adhésion</Link>

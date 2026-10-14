@@ -16,6 +16,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
           { href: "/admin/contenu", label: "Contenu du site" },
           { href: "/admin/medias", label: "Médiathèque" },
           { href: "/admin/taches", label: "Tâches" },
+          { href: "/admin/quiz", label: "Quiz" },
         ]}
       />
       <div className="app-main">{children}</div>

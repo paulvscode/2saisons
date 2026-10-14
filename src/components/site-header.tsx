@@ -13,7 +13,8 @@ type Props = {
 const LINKS = [
   { href: "/", label: "Accueil" },
   { href: "/mission", label: "Mission" },
-  { href: "/evenements", label: "Événements & Spots" },
+  { href: "/evenements", label: "Événements" },
+  { href: "/quiz", label: "Quiz" },
   { href: "/liens", label: "Liens" },
   { href: "/adhesion", label: "À propos & Adhésion" },
 ];
@@ -30,7 +31,7 @@ export function SiteHeader({ user }: Props) {
   // Ferme sur Échap + repasse en desktop.
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => e.key === "Escape" && setOpen(false);
-    const mq = window.matchMedia("(min-width: 801px)");
+    const mq = window.matchMedia("(min-width: 1101px)");
     const onChange = () => setOpen(false);
     document.addEventListener("keydown", onKey);
     mq.addEventListener("change", onChange);

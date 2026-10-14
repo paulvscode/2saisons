@@ -174,3 +174,59 @@ model Task {
   @@index([status, position])
   @@map("tasks")
 }
+
+// ---------- Quiz ----------
+
+model Quiz {
+  id          String   @id @default(cuid())
+  title       String
+  description String?
+  published   Boolean  @default(false) // un seul quiz publié à la fois, affiché sur /quiz
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  questions   QuizQuestion[]
+  submissions QuizSubmission[]
+
+  @@map("quizzes")
+}
+
+model QuizQuestion {
+  id       String       @id @default(cuid())
+  quizId   String
+  quiz     Quiz         @relation(fields: [quizId], references: [id], onDelete: Cascade)
+  text     String
+  position Int          @default(0)
+  answers  QuizAnswer[]
+
+  @@index([quizId, position])
+  @@map("quiz_questions")
+}
+
+model QuizAnswer {
+  id         String       @id @default(cuid())
+  questionId String
+  question   QuizQuestion @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  text       String
+  isCorrect  Boolean      @default(false)
+  position   Int          @default(0)
+
+  @@index([questionId])
+  @@map("quiz_answers")
+}
+
+model QuizSubmission {
+  id        String   @id @default(cuid())
+  quizId    String
+  quiz      Quiz     @relation(fields: [quizId], references: [id], onDelete: Cascade)
+  name      String
+  ipHash    String // HMAC de l'IP (jamais l'IP en clair) : une participation par IP et par quiz
+  score     Int
+  total     Int
+  results   Json // [{ questionId, correct }] : statistiques par question
+  createdAt DateTime @default(now())
+
+  @@unique([quizId, ipHash])
+  @@index([quizId, score])
+  @@map("quiz_submissions")
+}

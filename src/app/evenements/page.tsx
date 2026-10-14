@@ -3,7 +3,7 @@ import { getContent } from "@/lib/content";
 import { MapEmbed } from "./map-embed";
 
 export const metadata: Metadata = {
-  title: "Événements & Spots",
+  title: "Événements",
   description: "La carte des spots de skate du Havre.",
 };
 

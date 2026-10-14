@@ -36,6 +36,11 @@ export default async function PrivacyPage() {
             <strong>Inscriptions aux événements</strong> : participation aux sessions et contests.
           </li>
           <li>
+            <strong>Quiz</strong> : pseudo choisi et score, affichés dans le classement public ; une
+            empreinte chiffrée (non réversible) de l'adresse IP, pour limiter à une participation par
+            connexion. L'adresse IP elle-même n'est jamais conservée. Supprimés avec le quiz ou sur demande.
+          </li>
+          <li>
             <strong>Paiements</strong> : gérés par notre prestataire ; nous ne conservons qu'une
             référence de transaction et le montant.
           </li>
@@ -84,7 +89,7 @@ export default async function PrivacyPage() {
           pour ne plus afficher le bandeau d'information — il ne quitte jamais votre appareil.
         </p>
         <p>
-          La carte de la page « Événements &amp; Spots » est fournie par <strong>Google Maps</strong>.
+          La carte de la page « Événements » est fournie par <strong>Google Maps</strong>.
           Elle n'est chargée que si vous cliquez sur « Afficher la carte » : Google peut alors déposer
           ses propres cookies, régis par sa{" "}
           <a href="https://policies.google.com/privacy" target="_blank" rel="noopener noreferrer">

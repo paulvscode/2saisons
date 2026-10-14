@@ -116,15 +116,15 @@ export const CONTENT_SECTIONS: ContentSection[] = [
       "home.events.title": text("Titre (avec événements)", "Les prochains rendez-vous"),
       "home.events.emptyTitle": text("Titre (sans événement)", "Agenda en préparation"),
       "home.events.empty": area("Texte (sans événement)", "Pas d'événement prévu pour le moment."),
-      "home.events.cta": text("Bouton", "Voir tous les événements & spots"),
+      "home.events.cta": text("Bouton", "Voir tous les événements"),
     },
   },
   {
     id: "events",
-    title: "Événements & Spots",
+    title: "Événements",
     href: "/evenements",
     fields: {
-      "events.title": text("Titre de la page", "Événements & Spots"),
+      "events.title": text("Titre de la page", "Événements"),
       "events.map.query": text(
         "Lieu affiché sur la carte",
         "Le Havre, France",
