@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
+import { formatDate } from "@/lib/format";
 import { Disclosure } from "@/components/disclosure";
 import { QuizForm } from "./quiz-form";
 
@@ -8,10 +9,18 @@ export const metadata: Metadata = { title: "Quiz — Admin" };
 export const dynamic = "force-dynamic";
 
 export default async function AdminQuizListPage() {
-  const quizzes = await prisma.quiz.findMany({
-    orderBy: { createdAt: "desc" },
-    include: { _count: { select: { questions: true, submissions: true } } },
-  });
+  const [quizzes, stats] = await Promise.all([
+    prisma.quiz.findMany({
+      orderBy: { createdAt: "desc" },
+      include: { _count: { select: { questions: true, submissions: true } } },
+    }),
+    prisma.quizSubmission.groupBy({
+      by: ["quizId"],
+      _avg: { score: true, total: true },
+      _max: { createdAt: true },
+    }),
+  ]);
+  const statsOf = (id: string) => stats.find((s) => s.quizId === id);
 
   return (
     <>
@@ -35,6 +44,8 @@ export default async function AdminQuizListPage() {
               <th>Quiz</th>
               <th>Questions</th>
               <th>Participants</th>
+              <th>Score moyen</th>
+              <th>Dernière participation</th>
               <th>Statut</th>
             </tr>
           </thead>
@@ -45,12 +56,22 @@ export default async function AdminQuizListPage() {
                   <Link href={`/admin/quiz/${q.id}`} style={{ textDecoration: "underline", fontWeight: 700 }}>
                     {q.title}
                   </Link>
+                  <br />
+                  <span className="field__hint">Créé le {formatDate(q.createdAt)}</span>
                 </td>
                 <td>{q._count.questions}</td>
                 <td>{q._count.submissions}</td>
                 <td>
+                  {statsOf(q.id)?._avg.score != null
+                    ? `${statsOf(q.id)!._avg.score!.toFixed(1).replace(".", ",")} / ${Math.round(statsOf(q.id)!._avg.total ?? q._count.questions)}`
+                    : "–"}
+                </td>
+                <td>{statsOf(q.id)?._max.createdAt ? formatDate(statsOf(q.id)!._max.createdAt!) : "–"}</td>
+                <td>
                   {q.published ? (
                     <span className="badge">Publié</span>
+                  ) : q._count.submissions > 0 ? (
+                    <span className="badge badge--muted">Archivé</span>
                   ) : (
                     <span className="badge badge--muted">Brouillon</span>
                   )}
@@ -59,7 +80,7 @@ export default async function AdminQuizListPage() {
             ))}
             {quizzes.length === 0 && (
               <tr>
-                <td colSpan={4} className="muted">
+                <td colSpan={6} className="muted">
                   Aucun quiz.
                 </td>
               </tr>

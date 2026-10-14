@@ -220,7 +220,8 @@ model QuizSubmission {
   quizId    String
   quiz      Quiz     @relation(fields: [quizId], references: [id], onDelete: Cascade)
   name      String
-  ipHash    String // HMAC de l'IP (jamais l'IP en clair) : une participation par IP et par quiz
+  ipHash    String // HMAC de l'IP : une participation par IP et par quiz (contrainte unique)
+  ip        String? // IP en clair, visible des admins (modération) ; absente des premières participations
   score     Int
   total     Int
   results   Json // [{ questionId, correct }] : statistiques par question

@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { validatePlayerName } from "@/lib/moderation";
-import { getClientIpHash, getRank, type QuizResult } from "@/lib/quiz";
+import { getClientIp, getRank, hashIp, type QuizResult } from "@/lib/quiz";
 
 export type SubmitQuizResult =
   | { ok: true; score: number; total: number; rank: number }
@@ -31,19 +31,31 @@ export async function submitQuiz(input: {
     return { ok: false, message: "Ce quiz n'est plus disponible." };
   }
 
-  const ipHash = await getClientIpHash();
+  const ip = await getClientIp();
+  const ipHash = hashIp(ip);
   const already = await prisma.quizSubmission.findUnique({
     where: { quizId_ipHash: { quizId: quiz.id, ipHash } },
   });
   if (already) return { ok: false, message: "Tu as déjà participé à ce quiz." };
 
   // Une question est juste si la sélection correspond exactement aux bonnes réponses.
-  const results: QuizResult[] = quiz.questions.map((q) => {
-    const chosen = new Set(input.answers?.[q.id] ?? []);
-    const expected = q.answers.filter((a) => a.isCorrect).map((a) => a.id);
-    const correct = chosen.size === expected.length && expected.every((id) => chosen.has(id));
-    return { questionId: q.id, correct };
-  });
+  // Le texte de la question et des réponses est conservé pour l'historique (admin).
+  const results: QuizResult[] = quiz.questions
+    .sort((a, b) => a.position - b.position)
+    .map((q) => {
+      const chosenIds = new Set(input.answers?.[q.id] ?? []);
+      const expected = q.answers.filter((a) => a.isCorrect);
+      const correct =
+        chosenIds.size === expected.length && expected.every((a) => chosenIds.has(a.id));
+      const pick = (a: { id: string; text: string }) => ({ id: a.id, text: a.text });
+      return {
+        questionId: q.id,
+        correct,
+        question: q.text,
+        chosen: q.answers.filter((a) => chosenIds.has(a.id)).map(pick),
+        expected: expected.map(pick),
+      };
+    });
   if (quiz.questions.some((q) => (input.answers?.[q.id] ?? []).length === 0)) {
     return { ok: false, message: "Réponds à toutes les questions avant de valider." };
   }
@@ -52,7 +64,15 @@ export async function submitQuiz(input: {
   let submission;
   try {
     submission = await prisma.quizSubmission.create({
-      data: { quizId: quiz.id, name, ipHash, score, total: results.length, results },
+      data: {
+        quizId: quiz.id,
+        name,
+        ipHash,
+        ip: ip === "unknown" ? null : ip,
+        score,
+        total: results.length,
+        results,
+      },
     });
   } catch (e) {
     // Course entre deux envois depuis la même IP : la contrainte unique tranche.

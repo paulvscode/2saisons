@@ -53,7 +53,11 @@ export async function SiteFooter() {
             </p>
             <ul className="footer-nav">
               <li>
-                <a href={`mailto:${c["site.email"]}`}>{c["site.email"]}</a>
+                <a className="footer-nav__email" href={`mailto:${c["site.email"]}`}>
+                  {/* Coupure possible après « @ » plutôt qu'au milieu d'un mot. */}
+                  {c["site.email"].split("@")[0]}@<wbr />
+                  {c["site.email"].split("@").slice(1).join("@")}
+                </a>
               </li>
               <li>
                 <Link href="/mentions-legales">Mentions légales</Link>

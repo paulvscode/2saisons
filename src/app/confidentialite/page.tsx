@@ -36,9 +36,9 @@ export default async function PrivacyPage() {
             <strong>Inscriptions aux événements</strong> : participation aux sessions et contests.
           </li>
           <li>
-            <strong>Quiz</strong> : pseudo choisi et score, affichés dans le classement public ; une
-            empreinte chiffrée (non réversible) de l'adresse IP, pour limiter à une participation par
-            connexion. L'adresse IP elle-même n'est jamais conservée. Supprimés avec le quiz ou sur demande.
+            <strong>Quiz</strong> : pseudo choisi et score, affichés dans le classement public ; réponses
+            données et adresse IP, visibles uniquement par les administrateurs, pour limiter à une
+            participation par connexion et modérer le classement. Supprimés avec le quiz ou sur demande.
           </li>
           <li>
             <strong>Paiements</strong> : gérés par notre prestataire ; nous ne conservons qu'une

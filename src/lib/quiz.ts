@@ -4,15 +4,21 @@ import { headers } from "next/headers";
 import { prisma } from "./prisma";
 
 /**
- * Empreinte de l'IP du visiteur : HMAC-SHA256 avec AUTH_SECRET.
- * L'IP n'est jamais stockée en clair ; l'empreinte suffit à limiter à une participation par IP.
- * Sur Vercel, x-forwarded-for est réécrit par la plateforme (non falsifiable par le client).
+ * IP du visiteur. Sur Vercel, x-forwarded-for est réécrit par la plateforme
+ * (non falsifiable par le client).
  */
-export async function getClientIpHash() {
+export async function getClientIp() {
   const h = await headers();
-  const ip =
-    h.get("x-forwarded-for")?.split(",")[0]?.trim() || h.get("x-real-ip")?.trim() || "unknown";
+  return h.get("x-forwarded-for")?.split(",")[0]?.trim() || h.get("x-real-ip")?.trim() || "unknown";
+}
+
+/** Empreinte de l'IP (HMAC-SHA256 avec AUTH_SECRET) : clé de la règle « une participation par IP ». */
+export function hashIp(ip: string) {
   return createHmac("sha256", process.env.AUTH_SECRET ?? "dev-secret").update(ip).digest("hex");
+}
+
+export async function getClientIpHash() {
+  return hashIp(await getClientIp());
 }
 
 /** Quiz affiché sur /quiz (un seul publié à la fois), questions et réponses dans l'ordre. */
@@ -59,4 +65,21 @@ export async function getQuizStats(quizId: string) {
   return { participants: agg._count, averageScore: agg._avg.score ?? 0 };
 }
 
-export type QuizResult = { questionId: string; correct: boolean };
+/**
+ * Réponse d'un participant à une question, figée au moment de l'envoi : l'historique reste
+ * lisible même si la question est modifiée ou supprimée ensuite.
+ */
+export type QuizResult = {
+  questionId: string;
+  correct: boolean;
+  question?: string;
+  chosen?: { id: string; text: string }[];
+  expected?: { id: string; text: string }[];
+};
+
+/** Lit le champ JSON `results` (les premières participations ne contenaient que questionId/correct). */
+export function readResults(json: unknown): QuizResult[] {
+  return Array.isArray(json)
+    ? json.filter((r): r is QuizResult => typeof r?.questionId === "string" && typeof r?.correct === "boolean")
+    : [];
+}
