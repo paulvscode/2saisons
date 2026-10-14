@@ -23,7 +23,6 @@ const quizSchema = z.object({
     .trim()
     .max(1000)
     .transform((v) => v || null),
-  published: z.boolean(),
   timePerQuestion: z
     .union([z.literal(""), z.coerce.number().int("Nombre entier de secondes").min(5, "5 secondes minimum").max(600, "600 secondes maximum")])
     .transform((v) => (v === "" ? null : v)),
@@ -47,14 +46,13 @@ async function imageFromForm(formData: FormData, current: string | null | undefi
   return undefined;
 }
 
-/** Crée ou met à jour un quiz. Publier un quiz retire les autres de /quiz. */
+/** Crée ou met à jour un quiz (la publication passe par publishQuiz / unpublishQuiz). */
 export async function saveQuiz(_prev: FormState, formData: FormData): Promise<FormState> {
   await requireAdmin();
   const id = formData.get("id")?.toString() || null;
   const parsed = quizSchema.safeParse({
     title: formData.get("title") ?? "",
     description: formData.get("description") ?? "",
-    published: formData.get("published") === "on",
     timePerQuestion: formData.get("timePerQuestion")?.toString().trim() ?? "",
   });
   if (!parsed.success) {
@@ -71,16 +69,32 @@ export async function saveQuiz(_prev: FormState, formData: FormData): Promise<Fo
   }
   const data = { ...parsed.data, imageUrl };
 
-  const quiz = await prisma.$transaction(async (tx) => {
-    if (parsed.data.published) {
-      await tx.quiz.updateMany({ where: { published: true, NOT: id ? { id } : undefined }, data: { published: false } });
-    }
-    return id ? tx.quiz.update({ where: { id }, data }) : tx.quiz.create({ data });
-  });
+  const quiz = id ? await prisma.quiz.update({ where: { id }, data }) : await prisma.quiz.create({ data });
 
   revalidateQuiz(quiz.id);
   if (!id) redirect(`/admin/quiz/${quiz.id}`);
   return { ok: true, message: "Quiz enregistré." };
+}
+
+/** Publie le quiz sur /quiz (et retire les autres : un seul quiz publié à la fois). */
+export async function publishQuiz(id: string): Promise<FormState> {
+  await requireAdmin();
+  const questions = await prisma.quizQuestion.count({ where: { quizId: id } });
+  if (questions === 0) return { ok: false, message: "Ajoute au moins une question avant de publier." };
+  await prisma.$transaction([
+    prisma.quiz.updateMany({ where: { published: true, NOT: { id } }, data: { published: false } }),
+    prisma.quiz.update({ where: { id }, data: { published: true } }),
+  ]);
+  revalidateQuiz(id);
+  return { ok: true, message: "Publié sur /quiz." };
+}
+
+/** Retire le quiz de /quiz (classement et participations conservés). */
+export async function unpublishQuiz(id: string): Promise<FormState> {
+  await requireAdmin();
+  await prisma.quiz.update({ where: { id }, data: { published: false } });
+  revalidateQuiz(id);
+  return { ok: true, message: "Retiré de /quiz." };
 }
 
 export async function deleteQuiz(id: string): Promise<FormState> {

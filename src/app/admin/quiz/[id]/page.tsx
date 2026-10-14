@@ -6,7 +6,15 @@ import { formatDate, formatTime } from "@/lib/format";
 import { readResults, type QuizResult } from "@/lib/quiz";
 import { Disclosure } from "@/components/disclosure";
 import { ActionButton } from "@/components/action-button";
-import { deleteQuestion, deleteQuiz, deleteSubmission, moveQuestionDown, moveQuestionUp } from "../actions";
+import {
+  deleteQuestion,
+  deleteQuiz,
+  deleteSubmission,
+  moveQuestionDown,
+  moveQuestionUp,
+  publishQuiz,
+  unpublishQuiz,
+} from "../actions";
 import { QuizForm } from "../quiz-form";
 import { QuestionForm } from "../question-form";
 
@@ -55,10 +63,50 @@ export default async function AdminQuizPage({ params }: { params: Promise<{ id: 
         </Link>
       </div>
 
+      <div className="quiz-publish card">
+        <p>
+          {quiz.published ? (
+            <>
+              <strong>En ligne sur /quiz.</strong> Les visiteurs peuvent y répondre.{" "}
+              <Link href="/quiz" target="_blank" style={{ textDecoration: "underline" }}>
+                Voir ↗
+              </Link>
+            </>
+          ) : quiz.questions.length === 0 ? (
+            <>
+              <strong>Pas encore publiable :</strong> ajoute au moins une question.
+            </>
+          ) : (
+            <>
+              <strong>Non publié.</strong> Publier ce quiz retire de /quiz celui qui y est
+              actuellement.
+            </>
+          )}
+        </p>
+        {quiz.published ? (
+          <ActionButton
+            action={unpublishQuiz}
+            id={quiz.id}
+            className="btn btn--sm btn--ghost"
+            confirm="Retirer ce quiz de /quiz ? Le classement et les participations sont conservés."
+          >
+            Retirer de /quiz
+          </ActionButton>
+        ) : (
+          quiz.questions.length > 0 && (
+            <ActionButton action={publishQuiz} id={quiz.id} className="btn btn--sm">
+              Publier sur /quiz
+            </ActionButton>
+          )
+        )}
+      </div>
+
       <div className="stat-grid">
         <div className="card">
           <p className="card__label">Statut</p>
-          <p className="card__value">{quiz.published ? "Publié" : subs.length > 0 ? "Archivé" : "Brouillon"}</p>
+          <p className="card__value card__value--text">
+            {quiz.published ? "Publié" : subs.length > 0 ? "Archivé" : "Brouillon"}
+          </p>
         </div>
         <div className="card">
           <p className="card__label">Questions</p>
@@ -70,7 +118,9 @@ export default async function AdminQuizPage({ params }: { params: Promise<{ id: 
         </div>
         <div className="card">
           <p className="card__label">Minuterie</p>
-          <p className="card__value">{quiz.timePerQuestion ? `${quiz.timePerQuestion} s` : "Aucune"}</p>
+          <p className={`card__value ${quiz.timePerQuestion ? "" : "card__value--text"}`}>
+            {quiz.timePerQuestion ? `${quiz.timePerQuestion} s` : "Aucune"}
+          </p>
         </div>
         <div className="card">
           <p className="card__label">Score moyen</p>
@@ -82,7 +132,7 @@ export default async function AdminQuizPage({ params }: { params: Promise<{ id: 
         <h2 className="h-m" style={{ marginBottom: "1rem" }}>
           Réglages
         </h2>
-        <Disclosure label="Modifier le titre, la description, l'image, la minuterie ou la publication">
+        <Disclosure label="Modifier le titre, la description, l'image ou la minuterie">
           <QuizForm quiz={quiz} />
         </Disclosure>
       </section>

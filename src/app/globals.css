@@ -1003,6 +1003,23 @@ h3 {
 .stat-grid .card + .card {
   margin-top: 0;
 }
+/* Valeur en mots (« Brouillon », « Aucune ») : plus petite que les chiffres pour tenir dans la carte. */
+.card__value.card__value--text {
+  font-size: var(--step-1);
+  overflow-wrap: anywhere;
+}
+/* Bandeau de publication d'un quiz (admin). */
+.quiz-publish {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-s);
+  margin-bottom: var(--space-l);
+}
+.quiz-publish p {
+  flex: 1 1 18rem;
+}
 
 .status-banner {
   border: 2px solid var(--fg);

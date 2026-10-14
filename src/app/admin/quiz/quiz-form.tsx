@@ -32,10 +32,6 @@ export function QuizForm({ quiz }: { quiz?: Quiz }) {
         error={state.errors?.timePerQuestion}
         hint="Vide = pas de limite. À zéro, on passe à la question suivante ; une question sans réponse compte comme fausse."
       />
-      <label className="form__consent">
-        <input type="checkbox" name="published" defaultChecked={quiz?.published ?? false} />
-        <span>Publié sur /quiz (un seul quiz publié à la fois : publier celui-ci retire les autres)</span>
-      </label>
       <FormAlert state={state} />
       <SubmitButton pendingLabel="Enregistrement…" className="btn btn--sm">
         {quiz ? "Enregistrer" : "Créer le quiz"}

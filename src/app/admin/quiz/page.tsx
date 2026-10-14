@@ -3,6 +3,8 @@ import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { formatDate } from "@/lib/format";
 import { Disclosure } from "@/components/disclosure";
+import { ActionButton } from "@/components/action-button";
+import { publishQuiz, unpublishQuiz } from "./actions";
 import { QuizForm } from "./quiz-form";
 
 export const metadata: Metadata = { title: "Quiz — Admin" };
@@ -47,6 +49,7 @@ export default async function AdminQuizListPage() {
               <th>Score moyen</th>
               <th>Dernière participation</th>
               <th>Statut</th>
+              <th>Actions</th>
             </tr>
           </thead>
           <tbody>
@@ -76,11 +79,24 @@ export default async function AdminQuizListPage() {
                     <span className="badge badge--muted">Brouillon</span>
                   )}
                 </td>
+                <td>
+                  {q.published ? (
+                    <ActionButton action={unpublishQuiz} id={q.id} className="link-btn">
+                      Retirer de /quiz
+                    </ActionButton>
+                  ) : q._count.questions > 0 ? (
+                    <ActionButton action={publishQuiz} id={q.id} className="link-btn">
+                      Publier
+                    </ActionButton>
+                  ) : (
+                    <span className="field__hint">Aucune question</span>
+                  )}
+                </td>
               </tr>
             ))}
             {quizzes.length === 0 && (
               <tr>
-                <td colSpan={6} className="muted">
+                <td colSpan={7} className="muted">
                   Aucun quiz.
                 </td>
               </tr>
